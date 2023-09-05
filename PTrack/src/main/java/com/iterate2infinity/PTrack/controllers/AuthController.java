@@ -2,7 +2,6 @@ package com.iterate2infinity.PTrack.controllers;
 
 import java.util.Calendar;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import com.iterate2infinity.PTrack.DTOs.DoctorDTO;
@@ -68,17 +67,17 @@ public class AuthController {
 	EmailService emailService;
 	
 	@PostMapping("/login/user")
-	public ResponseEntity<?> authenticateUser(@RequestBody Map<String, String> loginRequest){
+	public ResponseEntity<?> authenticateUser(@RequestBody UserDTO user){
 		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.get("email"), loginRequest.get("password")));
+				new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
 		
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String jwt = jwtUtils.generateJwtToken(authentication);
 		
 		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 		
-		User user = userRepo.findByEmail(userDetails.getEmail()).orElse(null);
-		JwtResponseDTO jwtResponse = new JwtResponseDTO(jwt, user);
+		User authUser = userRepo.findByEmail(userDetails.getEmail()).orElse(null);
+		JwtResponseDTO jwtResponse = new JwtResponseDTO(jwt, authUser);
 		return ResponseEntity.ok(jwtResponse);
 		
 		
@@ -86,16 +85,16 @@ public class AuthController {
 	}
 	
 	@PostMapping("/login/doctor")
-	public ResponseEntity<?> authenticateDoctor(@RequestBody Map<String, String> loginRequest){
+	public ResponseEntity<?> authenticateDoctor(@RequestBody DoctorDTO doctor){
 		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.get("email"), loginRequest.get("password")));
+				new UsernamePasswordAuthenticationToken(doctor.getEmail(), doctor.getPassword()));
 		
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String jwt = jwtUtils.generateJwtToken(authentication);
 		
 		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-		Doctor doctor = doctorRepo.findByEmail(userDetails.getEmail()).orElse(null);
-		JwtResponseDTO_Doctor jwtResponse = new JwtResponseDTO_Doctor(jwt, doctor);
+		Doctor authDoctor = doctorRepo.findByEmail(userDetails.getEmail()).orElse(null);
+		JwtResponseDTO_Doctor jwtResponse = new JwtResponseDTO_Doctor(jwt, authDoctor);
 		return ResponseEntity.ok(jwtResponse);
 	}
 	

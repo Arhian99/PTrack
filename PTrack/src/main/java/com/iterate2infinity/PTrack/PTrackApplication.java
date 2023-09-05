@@ -13,6 +13,7 @@ public class PTrackApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PTrackApplication.class, args);
+	
 	}
 
 }

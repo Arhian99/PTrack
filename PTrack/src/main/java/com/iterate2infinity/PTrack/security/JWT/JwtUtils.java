@@ -7,10 +7,10 @@ import org.slf4j.LoggerFactory;
 
 import com.iterate2infinity.PTrack.security.services.UserDetailsImpl;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -23,11 +23,11 @@ public class JwtUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-	@Value("${JWT_SECRET}")
-	private String jwtSecret;
+	static Dotenv dotenv = Dotenv.configure().load();
 	
-	@Value("${JWT_EXP}")
-	private int jwtExpirationMs;
+	private String jwtSecret=dotenv.get("JWT_SECRET");
+	
+	private int jwtExpirationMs=Integer.parseInt(dotenv.get("JWT_EXP"));
 	
 	public String generateJwtToken(Authentication authentication) {
 		UserDetailsImpl userPrincipal = new UserDetailsImpl();

@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
@@ -18,7 +19,10 @@ import jakarta.mail.internet.MimeMessage;
 public class EmailService {
 
 	private JavaMailSender mailSender;
+
 	private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+	
+	Dotenv dotenv = Dotenv.configure().load();
 	
 	@Autowired
 	public EmailService(JavaMailSender mailSender) {
@@ -27,6 +31,7 @@ public class EmailService {
 	
 	@Async
 	public void sendConfirmationEmail(ConfirmationToken confirmationToken) {
+		
 		try {
 			MimeMessage mimeMessage = mailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
