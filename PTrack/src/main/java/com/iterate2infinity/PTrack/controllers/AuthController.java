@@ -1,6 +1,5 @@
 package com.iterate2infinity.PTrack.controllers;
 
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,12 +8,10 @@ import com.iterate2infinity.PTrack.DTOs.JwtResponseDTO;
 import com.iterate2infinity.PTrack.DTOs.JwtResponseDTO_Doctor;
 import com.iterate2infinity.PTrack.DTOs.RoleDTO;
 import com.iterate2infinity.PTrack.DTOs.UserDTO;
-import com.iterate2infinity.PTrack.models.ConfirmationToken;
 import com.iterate2infinity.PTrack.models.Doctor;
 import com.iterate2infinity.PTrack.models.ERole;
 import com.iterate2infinity.PTrack.models.Role;
 import com.iterate2infinity.PTrack.models.User;
-import com.iterate2infinity.PTrack.repos.ConfirmationTokenRepository;
 import com.iterate2infinity.PTrack.repos.DoctorRepository;
 import com.iterate2infinity.PTrack.repos.RoleRepository;
 import com.iterate2infinity.PTrack.repos.UserRepository;
@@ -35,6 +32,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,9 +45,6 @@ public class AuthController {
 	
 	@Autowired
 	DoctorRepository doctorRepo;
-	
-	@Autowired
-	ConfirmationTokenRepository confirmationTokenRepo;
 	
 	@Autowired
 	AuthenticationManager authenticationManager;
@@ -79,9 +74,6 @@ public class AuthController {
 		User authUser = userRepo.findByEmail(userDetails.getEmail()).orElse(null);
 		JwtResponseDTO jwtResponse = new JwtResponseDTO(jwt, authUser);
 		return ResponseEntity.ok(jwtResponse);
-		
-		
-		
 	}
 	
 	@PostMapping("/login/doctor")
@@ -115,10 +107,11 @@ public class AuthController {
 		newDoc.setRoles(roles);
 		
 		doctorRepo.save(newDoc);
-		ConfirmationToken confirmationToken = new ConfirmationToken(newDoc);
-		confirmationTokenRepo.save(confirmationToken);
 		
-		emailService.sendConfirmationEmail(confirmationToken);
+		
+		String jwt = jwtUtils.generateJwtToken(newDoc);
+		
+		emailService.sendConfirmationEmail(jwt);
 		
 		//TODO: Authneticate, set security context, generate jwt token and return jwt response with 201 status to the frontend.
 		return new ResponseEntity<>(newDoc, HttpStatus.CREATED);
@@ -141,65 +134,79 @@ public class AuthController {
 		
 		userRepo.save(newUser);
 		
-		ConfirmationToken confirmationToken = new ConfirmationToken(newUser);
-		confirmationTokenRepo.save(confirmationToken);
+		String jwt = jwtUtils.generateJwtToken(newUser);
 		
-		emailService.sendConfirmationEmail(confirmationToken);
+		emailService.sendConfirmationEmail(jwt);
 		
 		//TODO: Authenticate, set the SecurityContext, generate jwt token and return jwt response with 201 status to the frontend.
 		return new ResponseEntity<>(newUser, HttpStatus.CREATED);
 	}
 	
-	@RequestMapping("/confirm-account")
-	public ResponseEntity<?> confirmAccount(@RequestParam("token") String confirmationToken){
-		ConfirmationToken token = confirmationTokenRepo.findByConfirmationToken(confirmationToken).orElse(null);
-		
-		//check if token is expired, if expired return BAD_REQUEST error
-		Calendar cal = Calendar.getInstance();
-		if(token.getExpiryDate().getTime() - cal.getTime().getTime() <= 0) {
-			return new ResponseEntity<>("Error: Token is Expired. Unable to verify account.", HttpStatus.BAD_REQUEST);
-		}
-		
-		if(token != null && token.getUser() != null) {
-			User user = userRepo.findByEmail(token.getUser().getEmail()).orElse(null);
-			user.setIsEnabled(true);
-			userRepo.save(user);
-			
-			
-//			UserDetailsImpl userDetails = UserDetailsImpl.build(user);
-//			Authentication auth = new UsernamePasswordAuthenticationToken(userDetails.getEmail(), userDetails.getPassword(), userDetails.getAuthorities());
+	@RequestMapping(value="/confirm-account", method= {RequestMethod.GET, RequestMethod.POST})
+	public ResponseEntity<?> confirmAccount(@RequestParam("access_token")String confirmationToken){
+//		ConfirmationToken token = confirmationTokenRepo.findByConfirmationToken(confirmationToken).orElse(null);
+//		
+//		//check if token is expired, if expired return BAD_REQUEST error
+//		Calendar cal = Calendar.getInstance();
+//		if(token.getExpiryDate().getTime() - cal.getTime().getTime() <= 0) {
+//			return new ResponseEntity<>("Error: Token is Expired. Unable to verify account.", HttpStatus.BAD_REQUEST);
+//		}
+//		
+//		if(token != null && token.getUser() != null) {
+//			User user = userRepo.findByEmail(token.getUser().getEmail()).orElse(null);
+//			user.setIsEnabled(true);
+//			userRepo.save(user);
 //			
+//			
+//			Authentication authentication = authenticationManager.authenticate(
+//					new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+//			
+//			SecurityContextHolder.getContext().setAuthentication(authentication);
+//			String jwt = jwtUtils.generateJwtToken(authentication);
+//			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+//			JwtResponseDTO jwtResponse = new JwtResponseDTO(jwt, user);
+//			
+//			
+//			return ResponseEntity.ok(jwtResponse);
+//			
+//		} else if(token != null && token.getDoctor() != null) {
+//			Doctor doctor = doctorRepo.findByEmail(token.getDoctor().getEmail()).orElse(null);
+//			doctor.setIsEnabled(true);
+//			doctorRepo.save(doctor);
+//			
+//			UserDetailsImpl userDetails = UserDetailsImpl.build(doctor);
+//			Authentication auth = new UsernamePasswordAuthenticationToken(userDetails.getEmail(), userDetails.getPassword(), userDetails.getAuthorities());
 //			SecurityContextHolder.getContext().setAuthentication(auth);
 //			String jwt = jwtUtils.generateJwtToken(auth);
-//			JwtResponseDTO jwtResponse = new JwtResponseDTO(jwt, user);
+//			JwtResponseDTO_Doctor jwtResponse = new JwtResponseDTO_Doctor(jwt, doctor);
+//			
+//			return ResponseEntity.ok(jwtResponse);
+//			
+//		}
+//		
+//		return new ResponseEntity<>("Error: Token is invalid. Unable to verify account.", HttpStatus.BAD_REQUEST);
+		
+		if(jwtUtils.validateJwtToken(confirmationToken)) {
+			String email = jwtUtils.getEmailFromJwtToken(confirmationToken);
+			User user = userRepo.findByEmail(email).orElse(null);
+			Doctor doctor = doctorRepo.findByEmail(email).orElse(null);
 			
-			Authentication authentication = authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
-			
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-			String jwt = jwtUtils.generateJwtToken(authentication);
-			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-			JwtResponseDTO jwtResponse = new JwtResponseDTO(jwt, user);
-			
-			
-			return ResponseEntity.ok(jwtResponse);
-			
-		} else if(token != null && token.getDoctor() != null) {
-			Doctor doctor = doctorRepo.findByEmail(token.getDoctor().getEmail()).orElse(null);
-			doctor.setIsEnabled(true);
-			doctorRepo.save(doctor);
-			
-			UserDetailsImpl userDetails = UserDetailsImpl.build(doctor);
-			Authentication auth = new UsernamePasswordAuthenticationToken(userDetails.getEmail(), userDetails.getPassword(), userDetails.getAuthorities());
-			SecurityContextHolder.getContext().setAuthentication(auth);
-			String jwt = jwtUtils.generateJwtToken(auth);
-			JwtResponseDTO_Doctor jwtResponse = new JwtResponseDTO_Doctor(jwt, doctor);
-			
-			return ResponseEntity.ok(jwtResponse);
-			
+			if(user != null) {
+				user.setIsEnabled(true);
+				userRepo.save(user);
+				JwtResponseDTO jwtResponse = new JwtResponseDTO(confirmationToken, user);
+				return ResponseEntity.ok(jwtResponse);
+			} else if(doctor !=null) {
+				doctor.setIsEnabled(true);
+				doctorRepo.save(doctor);
+				JwtResponseDTO_Doctor jwtResponse = new JwtResponseDTO_Doctor(confirmationToken, doctor);
+				return ResponseEntity.ok(jwtResponse);
+			} else {
+				return ResponseEntity.badRequest().body("Unable to find account that matches this token.");
+			}
 		}
 		
-		return new ResponseEntity<>("Error: Token is invalid. Unable to verify account.", HttpStatus.BAD_REQUEST);
+		return ResponseEntity.badRequest().body("Invalid Token.");
 	}
 	
 	// TODO: Move to admin controller, and ensure this is a private endpoint where only USER_ADMIN can post to

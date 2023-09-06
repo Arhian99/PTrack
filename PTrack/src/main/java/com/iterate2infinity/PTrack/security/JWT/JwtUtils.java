@@ -5,6 +5,8 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.iterate2infinity.PTrack.models.Doctor;
+import com.iterate2infinity.PTrack.models.User;
 import com.iterate2infinity.PTrack.security.services.UserDetailsImpl;
 
 import org.springframework.security.core.Authentication;
@@ -41,6 +43,24 @@ public class JwtUtils {
 		}
 		return Jwts.builder()
 				.setSubject(userEmail)
+				.setIssuedAt(new Date())
+				.setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+				.signWith(SignatureAlgorithm.HS512, jwtSecret)
+				.compact();
+	}
+	
+	public String generateJwtToken(User user) {
+		return Jwts.builder()
+				.setSubject(user.getEmail())
+				.setIssuedAt(new Date())
+				.setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+				.signWith(SignatureAlgorithm.HS512, jwtSecret)
+				.compact();
+	}
+	
+	public String generateJwtToken(Doctor doc) {
+		return Jwts.builder()
+				.setSubject(doc.getEmail())
 				.setIssuedAt(new Date())
 				.setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
 				.signWith(SignatureAlgorithm.HS512, jwtSecret)
