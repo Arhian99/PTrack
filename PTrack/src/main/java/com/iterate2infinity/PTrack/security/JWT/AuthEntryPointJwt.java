@@ -23,17 +23,8 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
 		
-		
 		logger.error("Unauthorized error: {}", authException.getMessage());
-		
-		if(authException.getMessage().equals("Unauthorized error: Bad credentials")) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error: Unauthorized");
-		} else {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized");
-		}
-		
-		
-		
-	}
+		response.sendError(401, authException.getMessage());
 
+	}
 }

@@ -167,6 +167,7 @@ public class AuthController {
 		return ResponseEntity.badRequest().body("Invalid Token.");
 	}
 	
+	
 	// TODO: Move to admin controller, and ensure this is a private endpoint where only USER_ADMIN can post to
 	@PostMapping("/save/role")
 	@PreAuthorize("hasRole('ADMIN')")
