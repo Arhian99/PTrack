@@ -63,6 +63,13 @@ public class AuthController {
 	
 	@PostMapping("/login/user")
 	public ResponseEntity<?> authenticateUser(@RequestBody UserDTO user){
+		if(!userRepo.existsByEmail(user.getEmail()) && doctorRepo.existsByEmail(user.getEmail())) {
+			return new ResponseEntity<>("Error: Please choose correct role.", HttpStatus.BAD_REQUEST);
+			
+		} else if(!userRepo.existsByEmail(user.getEmail()) && !doctorRepo.existsByEmail(user.getEmail())){
+			return new ResponseEntity<>("Error: User does not exist, please register.", HttpStatus.BAD_REQUEST);
+		}
+		
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
 		
@@ -78,6 +85,14 @@ public class AuthController {
 	
 	@PostMapping("/login/doctor")
 	public ResponseEntity<?> authenticateDoctor(@RequestBody DoctorDTO doctor){
+		if(userRepo.existsByEmail(doctor.getEmail()) && !doctorRepo.existsByEmail(doctor.getEmail())) {
+			return new ResponseEntity<>("Error: Please choose correct role.", HttpStatus.BAD_REQUEST);
+			
+		} else if(!userRepo.existsByEmail(doctor.getEmail()) && !doctorRepo.existsByEmail(doctor.getEmail())){
+			return new ResponseEntity<>("Error: Doctor does not exist, please register.", HttpStatus.BAD_REQUEST);
+		}
+		
+		
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(doctor.getEmail(), doctor.getPassword()));
 		

@@ -1,4 +1,4 @@
-package com.iterate2infinity.PTrack.controllers;
+package com.iterate2infinity.PTrack;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,11 +12,13 @@ public class AuthExceptionHandler {
 	
 	@ExceptionHandler(BadCredentialsException.class)
 	public ResponseEntity<?> handleCredentialsException(BadCredentialsException e) {
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect email or password.");
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect email or password."); //400
 	}
 	
 	@ExceptionHandler(DisabledException.class)
 	public ResponseEntity<?> handleDisabledException(DisabledException e) {
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User account is disabled.");
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User account is disabled."); //401
 	}
+	
+
 }

@@ -3,10 +3,8 @@ package com.iterate2infinity.PTrack.DTOs;
 import com.iterate2infinity.PTrack.models.Doctor;
 
 public class JwtResponseDTO_Doctor {
-
-	
 	private String jwt;
-	private Doctor doctor; // named user for frontend homogeneity
+	private Doctor doctor;
 	
 	public String getJwt() {
 		return jwt;
@@ -15,7 +13,6 @@ public class JwtResponseDTO_Doctor {
 		this.jwt = jwt;
 	}
 
-	
 	public JwtResponseDTO_Doctor(String jwt, Doctor doctor) {
 		super();
 		this.jwt = jwt;

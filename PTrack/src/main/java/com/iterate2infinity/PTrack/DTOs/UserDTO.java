@@ -3,9 +3,6 @@ package com.iterate2infinity.PTrack.DTOs;
 import org.bson.types.ObjectId;
 
 public class UserDTO {
-
-	
-	
 	private ObjectId id;
 	private String username;
 	private String email;
