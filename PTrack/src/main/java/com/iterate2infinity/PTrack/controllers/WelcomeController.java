@@ -26,23 +26,19 @@ public class WelcomeController {
 	@Autowired
 	private DoctorRepository doctorRepo;
 	
-	// TODO: private url, must authenticate and have ROLE_USER
 	@GetMapping("/user")
-	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	//@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	public ResponseEntity<?> getUser(@RequestBody HashMap<String, String> emailMap) {
 		User user = userRepo.findByEmail(emailMap.get("email")).orElse(null);
 		return ResponseEntity.ok(user);
 	}
 	
-	// TODO: private url, must authenticate and have ROLE_DOCTOR
 	@GetMapping("/doctor")
-	@PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
+	//@PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
 	public ResponseEntity<?> getDoctor(@RequestBody HashMap<String, String> emailMap){
 		Doctor doctor = doctorRepo.findByEmail(emailMap.get("email")).orElse(null);
 		return ResponseEntity.ok(doctor);
 	}
-	
-	
 
 }
 

@@ -142,7 +142,7 @@ public class AuthController {
 	}
 	
 	/*
-	 * This end point reactes a new Doctor object with the data recieved and 
+	 * This end point creates a new Doctor object with the data received and 
 	 * saves new doctor object onto the database
 	 */
 	@PostMapping("/save/doctor")
