@@ -10,6 +10,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
+// This class provides configuration to MongoDB database instance
+
 @Configuration
 public class MongoConfig extends AbstractMongoClientConfiguration{
 	

@@ -14,6 +14,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+
+// This class is used to hold userDetails when user is retrieved from db or when user will be added to db.
 public class UserDetailsImpl implements UserDetails {
 	
 	private static final long serialVersionUID = 1L;
@@ -41,6 +43,7 @@ public class UserDetailsImpl implements UserDetails {
 		this.authorities=authorities;
 	}
 	
+	// by default when new user is created the account is disabled until email is confirmed
 	public UserDetailsImpl() {
 		this.isEnabled=false;
 	}

@@ -10,6 +10,7 @@ import com.iterate2infinity.PTrack.models.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+//Repository to interact with 'users' collection (which stores User objects) in our db
 @Repository
 public interface UserRepository extends MongoRepository<User, ObjectId>{
 

@@ -13,6 +13,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+// This class catches any requests from unauthorized users and sends 401 response to the front end, asking users to authenticate
 @Component
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 

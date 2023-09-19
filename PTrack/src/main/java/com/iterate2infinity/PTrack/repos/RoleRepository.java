@@ -10,6 +10,7 @@ import com.iterate2infinity.PTrack.models.Role;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+//Repository to interact with 'roles' collection (which stores Role objects) in our db
 @Repository
 public interface RoleRepository extends MongoRepository<Role, ObjectId>{
 	Optional<Role> findByName(ERole name);

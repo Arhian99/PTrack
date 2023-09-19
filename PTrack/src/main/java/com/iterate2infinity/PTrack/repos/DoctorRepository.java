@@ -10,6 +10,7 @@ import com.iterate2infinity.PTrack.models.Doctor;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+// Repository to interact with 'doctors' collection (which stores Doctor objects) in our db
 @Repository
 public interface DoctorRepository extends MongoRepository<Doctor, ObjectId>{
 	Optional<Doctor> findByUsername(String username);

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+// This api controllers takes GET requests and returns single doctor or single user objects as decided by the email that is passed in
 @RestController
 @RequestMapping("/api/welcome")
 public class WelcomeController {

@@ -1,5 +1,6 @@
 package com.iterate2infinity.PTrack.DTOs;
 
+//POJO used (as a model) to receive data from the frontend
 public class RoleDTO {
 
 	private String name;

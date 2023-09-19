@@ -2,8 +2,8 @@ package com.iterate2infinity.PTrack.DTOs;
 
 import com.iterate2infinity.PTrack.models.User;
 
+//POJO used (as a model) to send data to the frontend (sends JWT along with User object)
 public class JwtResponseDTO {
-
 	private String jwt;
 	private User user;
 	

@@ -2,9 +2,8 @@ package com.iterate2infinity.PTrack.DTOs;
 
 import org.bson.types.ObjectId;
 
+// POJO used (as a model) to receive data from the frontend
 public class DoctorDTO {
-
-	
 	private ObjectId id;
 	private String username;
 	private String email;

@@ -20,6 +20,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 
+/* This class defines utility methods for everything related to JWT tokens */
 @Component
 public class JwtUtils {
 
@@ -27,20 +28,27 @@ public class JwtUtils {
 
 	static Dotenv dotenv = Dotenv.configure().load();
 	
+	// stores the secret key used to sign JWT's
 	private String jwtSecret=dotenv.get("JWT_SECRET");
 	
+	// stores how long JWT's last before expiring
 	private int jwtExpirationMs=Integer.parseInt(dotenv.get("JWT_EXP"));
 	
+	// This method generates new JWT token from an authentication object
 	public String generateJwtToken(Authentication authentication) {
 		UserDetailsImpl userPrincipal = new UserDetailsImpl();
 		String userEmail="";
 		
+		/* an authentication object will hold userDetails object in the principal field if it has already
+		 *  been authenticated or simply the user credentials if it has NOT been authenticated
+		 */
 		if(authentication.getPrincipal().getClass() == userPrincipal.getClass()) {
 			userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 			userEmail=userPrincipal.getEmail();
 		} else {
 			userEmail = (String) authentication.getPrincipal();
 		}
+		// builds JWT token with user email, current date, expiration date, and signs with provided secret
 		return Jwts.builder()
 				.setSubject(userEmail)
 				.setIssuedAt(new Date())
@@ -49,6 +57,7 @@ public class JwtUtils {
 				.compact();
 	}
 	
+	// This method builds jwt token from a user object
 	public String generateJwtToken(User user) {
 		return Jwts.builder()
 				.setSubject(user.getEmail())
@@ -58,6 +67,7 @@ public class JwtUtils {
 				.compact();
 	}
 	
+	// This method builds jwt token from a doctor object
 	public String generateJwtToken(Doctor doc) {
 		return Jwts.builder()
 				.setSubject(doc.getEmail())
@@ -67,10 +77,13 @@ public class JwtUtils {
 				.compact();
 	}
 	
+	// this method parses an email from a jwt token
 	public String getEmailFromJwtToken(String token) {
 		return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
 	}
 	
+	// this method ensures the token passed in is a valid JWT token by checking against secret key, expiration date, and other claims
+	// returns true if valid, false otherwise
 	public boolean validateJwtToken(String authToken) {
 		try {
 			Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);

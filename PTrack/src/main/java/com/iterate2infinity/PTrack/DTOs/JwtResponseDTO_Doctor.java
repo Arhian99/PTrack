@@ -2,6 +2,7 @@ package com.iterate2infinity.PTrack.DTOs;
 
 import com.iterate2infinity.PTrack.models.Doctor;
 
+//POJO used (as a model) to send data to the frontend (sends JWT along with Doctor object)
 public class JwtResponseDTO_Doctor {
 	private String jwt;
 	private Doctor doctor;

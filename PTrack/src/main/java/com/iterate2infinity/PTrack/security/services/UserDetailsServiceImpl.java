@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+// This class provides a method to retrieve a user's details from the db based on the email.
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService{
 	@Autowired
@@ -24,10 +25,9 @@ public class UserDetailsServiceImpl implements UserDetailsService{
 	@Autowired
 	DoctorRepository doctorRepository;
 	
+	// This method retrieves and returns userDetils object from db associated with passed in email.
 	@Transactional
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		//User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found with email: "+email));
-
 		if(userRepository.existsByEmail(email)) {
 			User user=userRepository.findByEmail(email).orElse(null);
 			if(user == null) throw new UsernameNotFoundException("User not found with email: "+email);
