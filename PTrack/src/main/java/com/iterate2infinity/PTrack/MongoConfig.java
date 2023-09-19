@@ -1,6 +1,5 @@
 package com.iterate2infinity.PTrack;
 
-import com.mongodb.ConnectionString;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
@@ -23,7 +22,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration{
 	
 	@Bean
 	public MongoClient mongoClient() {
-		return MongoClients.create(new ConnectionString(MONGO_URI));
+		return MongoClients.create(MONGO_URI+"?tls=true");
 	}
 
 	@Bean
