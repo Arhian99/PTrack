@@ -1,7 +1,11 @@
 package com.iterate2infinity.PTrack.models;
 
+import java.util.HashSet;
+
 import org.bson.types.ObjectId;
+
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="locations")
@@ -11,9 +15,12 @@ public class Location {
 	private ObjectId id;
 	private String name;
 	private String address;
+	@DBRef
+	private HashSet<Doctor> activeDoctors;
+	@DBRef
+	private HashSet<User> activePatients;
 	
 	public Location(String name, String address) {
-		super();
 		this.name = name;
 		this.address = address;
 	}
