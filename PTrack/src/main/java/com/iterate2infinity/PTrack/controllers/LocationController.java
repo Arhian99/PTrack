@@ -107,11 +107,13 @@ public class LocationController {
 		if(request.get("role").equals("ROLE_USER")) {
 			User user = userRepo.findByEmail(request.get("email")).orElse(null);
 			location.addActivePatient(user);
-			return ResponseEntity.ok(user.getUsername()+" has been checked in.");
+			locationRepo.save(location);
+			return ResponseEntity.ok(location/*user.getUsername()+" has been checked in."*/);
 		} else if (request.get("role").equals("ROLE_DOCTOR")) {
 			Doctor doctor = doctorRepo.findByEmail(request.get("email")).orElse(null);
 			location.addActiveDoctor(doctor);
-			return ResponseEntity.ok(doctor.getUsername()+" has been checked in.");
+			locationRepo.save(location);
+			return ResponseEntity.ok(location/*doctor.getUsername()+" has been checked in."*/);
 		}
 		
 		return ResponseEntity.badRequest().build();

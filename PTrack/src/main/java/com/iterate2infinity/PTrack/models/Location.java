@@ -40,6 +40,8 @@ public class Location {
 	public Location(String name, String address) {
 		this.name = name;
 		this.address = address;
+		this.activeDoctors = new HashSet<>();
+		this.activePatients = new HashSet<>();
 	}
 
 	public ObjectId getId() {
