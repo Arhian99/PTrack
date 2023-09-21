@@ -68,6 +68,7 @@ public class WebSecurityConfiguration {
 	
 	//TODO: CONFIGURE CORS
 	//https://reflectoring.io/spring-cors/
+	// ADD CorsConfigurationSource corsConfigurationSource() bean method (see "Spring Security Applied to Spring Web MVC" section on link above)
 	
 	
 	// this method sets the configuration for the security filter chain
@@ -76,7 +77,7 @@ public class WebSecurityConfiguration {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			 // disable cors (for development purposes)
-			.cors(cors -> cors.disable())
+			
 			.csrf(csrf -> csrf.disable()) // disable cors (for development purposes)
 			.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and() // sets the AuthEntryPointJwt as the authentication entry point (catches unauthenticated requests and returns unauthorized response to the front end)
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and() // we are using JWT to manage a user's session so we set our sessions to stateless
@@ -93,7 +94,7 @@ public class WebSecurityConfiguration {
 															   .requestMatchers("api/visits/**").authenticated()
 															   .requestMatchers("api/locations/**").authenticated()); // requests to api/welcome/doctor MUST authenticate
 		
-		
+		http.cors();
 		http.authenticationProvider(authenticationProvider()); // sets the username and password authentication provider as AN authentication provider in this filter chain
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class); // adds the JWT token filter (AuthTokenFilter) class as a filter BEFORE the UsernameAndPasswordAuthentication filter
 		
