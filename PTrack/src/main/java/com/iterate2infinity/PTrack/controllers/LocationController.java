@@ -2,6 +2,7 @@ package com.iterate2infinity.PTrack.controllers;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.iterate2infinity.PTrack.models.Location;
 import com.iterate2infinity.PTrack.repos.LocationRepository;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/locations")
 public class LocationController {
@@ -23,7 +25,7 @@ public class LocationController {
 	
 	@GetMapping("/all")
 	public ResponseEntity<?> getAllLocations() {
-		HashSet<Location> locations = (HashSet<Location>) locationRepo.findAll();
+		List<Location> locations = locationRepo.findAll();
 		return ResponseEntity.ok(locations);
 	}
 	

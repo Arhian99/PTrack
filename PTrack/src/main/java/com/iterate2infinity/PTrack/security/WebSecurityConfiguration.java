@@ -65,12 +65,18 @@ public class WebSecurityConfiguration {
 		return authConfig.getAuthenticationManager();
 	}
 	
+	
+	//TODO: CONFIGURE CORS
+	//https://reflectoring.io/spring-cors/
+	
+	
 	// this method sets the configuration for the security filter chain
 	//TODO: CONFIGURE cors and csrf
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.cors(cors -> cors.disable()) // disable cors (for development purposes)
+			 // disable cors (for development purposes)
+			.cors(cors -> cors.disable())
 			.csrf(csrf -> csrf.disable()) // disable cors (for development purposes)
 			.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and() // sets the AuthEntryPointJwt as the authentication entry point (catches unauthenticated requests and returns unauthorized response to the front end)
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and() // we are using JWT to manage a user's session so we set our sessions to stateless
@@ -80,9 +86,11 @@ public class WebSecurityConfiguration {
 															   .requestMatchers("/api/welcome/user").hasRole("USER") // requests to /api/welcome/user MUST have role of USER
 															   .requestMatchers("/api/welcome/doctor").hasRole("DOCTOR") // requests to /api/welcome/doctor MUST have role of DOCTOR
 															   .requestMatchers("api/locations/**").hasAnyRole("ADMIN", "DOCTOR", "USER")
+															   .requestMatchers("api/visits/**").hasAnyRole("ADMIN", "DOCTOR", "USER")
 															   .requestMatchers("/api/admin").authenticated() // requests to api/admin MUST authenticate
 															   .requestMatchers("/api/welcome/user").authenticated() // requests to api/welcome/user MUST authenticate
 															   .requestMatchers("/api/welcome/doctor").authenticated()
+															   .requestMatchers("api/visits/**").authenticated()
 															   .requestMatchers("api/locations/**").authenticated()); // requests to api/welcome/doctor MUST authenticate
 		
 		
