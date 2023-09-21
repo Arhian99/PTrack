@@ -20,6 +20,23 @@ public class Location {
 	@DBRef
 	private HashSet<User> activePatients;
 	
+	public void addActivePatient(User user) {
+		activePatients.add(user);
+	}
+	
+	public void addActiveDoctor(Doctor doctor) {
+		activeDoctors.add(doctor);
+	}
+	
+	public void clearActivePatients() {
+		activePatients.clear();
+	}
+	
+	public void clearActiveDoctors() {
+		activeDoctors.clear();
+	}
+	
+	
 	public Location(String name, String address) {
 		this.name = name;
 		this.address = address;
