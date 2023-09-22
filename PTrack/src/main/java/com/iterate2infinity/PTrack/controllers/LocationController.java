@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*")
@@ -205,15 +206,13 @@ public class LocationController {
 		return ResponseEntity.ok(location);
 	}
 	
-	/* Request Body
-	 * {
-	 * 		"name": "locationName"
-	 * }
+	/* Request Params
+	 * URL: /api/locations/activePatients?location_name=XXXXXX
 	 *
 	 */
 	@GetMapping("/activeDoctors")
-	public ResponseEntity<?> getActiveDoctors(@RequestBody HashMap<String, String> request){
-		Location location = locationRepo.findByName(request.get("name")).orElse(null);
+	public ResponseEntity<?> getActiveDoctors(@RequestParam("location_name") String locationName){
+		Location location = locationRepo.findByName(locationName).orElse(null);
 		if(location==null) {
 			return ResponseEntity.badRequest().body("Error: Location with specified name not found in database.");
 		}
@@ -223,15 +222,13 @@ public class LocationController {
 		return ResponseEntity.ok(activeDoctors);
 	}
 	
-	/* Request Body
-	 * {
-	 * 		"name": "locationName"
-	 * }
+	/* Request Params
+	 * URL: /api/locations/activePatients?location_name=XXXXXX
 	 *
 	 */
 	@GetMapping("/activePatients")
-	public ResponseEntity<?> getActivePatients(@RequestBody HashMap<String, String> request){
-		Location location = locationRepo.findByName(request.get("name")).orElse(null);
+	public ResponseEntity<?> getActivePatients(@RequestParam("location_name") String locationName){
+		Location location = locationRepo.findByName(locationName).orElse(null);
 		if(location==null) {
 			return ResponseEntity.badRequest().body("Error: Location with specified name not found in database.");
 		}
