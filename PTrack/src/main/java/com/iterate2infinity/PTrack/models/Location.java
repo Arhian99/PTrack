@@ -20,6 +20,22 @@ public class Location {
 	@DBRef
 	private HashSet<User> activePatients;
 	
+	public HashSet<Doctor> getActiveDoctors() {
+		return activeDoctors;
+	}
+
+	public void setActiveDoctors(HashSet<Doctor> activeDoctors) {
+		this.activeDoctors = activeDoctors;
+	}
+
+	public HashSet<User> getActivePatients() {
+		return activePatients;
+	}
+
+	public void setActivePatients(HashSet<User> activePatients) {
+		this.activePatients = activePatients;
+	}
+
 	public void addActivePatient(User user) {
 		activePatients.add(user);
 	}
@@ -40,6 +56,11 @@ public class Location {
 	public Location(String name, String address) {
 		this.name = name;
 		this.address = address;
+		this.activeDoctors = new HashSet<>();
+		this.activePatients = new HashSet<>();
+	}
+	
+	public Location() {
 		this.activeDoctors = new HashSet<>();
 		this.activePatients = new HashSet<>();
 	}

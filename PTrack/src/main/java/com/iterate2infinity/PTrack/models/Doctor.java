@@ -17,8 +17,17 @@ public class Doctor {
 	private String email;
 	private String password;
 	private Boolean isEnabled;
+	private Boolean isCheckedIn;
 	
 	private Set<Role> roles = new HashSet<>();
+	
+	public Boolean getIsCheckedIn() {
+		return isCheckedIn;
+	}
+	
+	public void setIsCheckedIn(Boolean isCheckedIn) {
+		this.isCheckedIn = isCheckedIn;
+	}
 	
 	public ObjectId getId() {
 		return id;
@@ -57,9 +66,11 @@ public class Doctor {
 		this.email = email;
 		this.password = password;
 		this.isEnabled = false;
+		this.isCheckedIn = false;
 	}
 	public Doctor() {
 		this.isEnabled = false;
+		this.isCheckedIn = false;
 	}
 	public Boolean getIsEnabled() {
 		return isEnabled;

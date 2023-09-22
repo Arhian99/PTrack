@@ -1,6 +1,7 @@
 package com.iterate2infinity.PTrack.controllers;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import com.iterate2infinity.PTrack.models.Doctor;
@@ -108,16 +109,135 @@ public class LocationController {
 			User user = userRepo.findByEmail(request.get("email")).orElse(null);
 			location.addActivePatient(user);
 			locationRepo.save(location);
-			return ResponseEntity.ok(location/*user.getUsername()+" has been checked in."*/);
+			
+			user.setIsCheckedIn(true);
+			userRepo.save(user);
+			
+			return ResponseEntity.ok(location);
+			
 		} else if (request.get("role").equals("ROLE_DOCTOR")) {
 			Doctor doctor = doctorRepo.findByEmail(request.get("email")).orElse(null);
 			location.addActiveDoctor(doctor);
 			locationRepo.save(location);
+			
+			doctor.setIsCheckedIn(true);
+			doctorRepo.save(doctor);
+			
 			return ResponseEntity.ok(location/*doctor.getUsername()+" has been checked in."*/);
 		}
 		
 		return ResponseEntity.badRequest().build();
 	}
 	
+	/* Request Body
+	 * {
+	 * 		"name": "locationName"
+	 * }
+	 *
+	 */
+	@PostMapping("/clearDoctors")
+	public ResponseEntity<?> clearActiveDoctors(@RequestBody HashMap<String, String> request){
+		Location location = locationRepo.findByName(request.get("name")).orElse(null);
+		if(location == null){
+			return ResponseEntity.badRequest().body("Error: Location with specified name not found in database.");
+		}
+		location.getActiveDoctors().forEach(doctor -> {
+			doctor.setIsCheckedIn(false);
+			doctorRepo.save(doctor);
+			});
+		
+		location.clearActiveDoctors();
+		locationRepo.save(location);
+		
+		return ResponseEntity.ok(location);
+	}
 	
+	/* Request Body
+	 * {
+	 * 		"name": "locationName"
+	 * }
+	 *
+	 */
+	@PostMapping("/clearPatients")
+	public ResponseEntity<?> clearActivePatients(@RequestBody HashMap<String, String> request){
+		Location location = locationRepo.findByName(request.get("name")).orElse(null);
+		if(location==null) {
+			return ResponseEntity.badRequest().body("Error: Location with specified name not found in database.");
+		}  
+		location.getActivePatients().forEach(patient -> {
+			patient.setIsCheckedIn(false);
+			userRepo.save(patient);
+		});
+		location.clearActivePatients();
+		locationRepo.save(location);
+		
+		return ResponseEntity.ok(location);
+	}
+	
+	/* Request Body
+	 * {
+	 * 		"name": "locationName"
+	 * }
+	 *
+	 */
+	@PostMapping("/clearAll")
+	public ResponseEntity<?> clearAll(@RequestBody HashMap<String, String> request){
+		Location location = locationRepo.findByName(request.get("name")).orElse(null);
+		if(location==null) {
+			return ResponseEntity.badRequest().body("Error: Location with specified name not found in database.");
+		}
+		
+		location.getActiveDoctors().forEach(doctor -> {
+			doctor.setIsCheckedIn(false);
+			doctorRepo.save(doctor);
+		});
+		
+		location.clearActiveDoctors();
+
+		location.getActivePatients().forEach(patient -> {
+			patient.setIsCheckedIn(false);
+			userRepo.save(patient);
+		});
+		
+		location.clearActivePatients();
+		locationRepo.save(location);
+		
+		return ResponseEntity.ok(location);
+	}
+	
+	/* Request Body
+	 * {
+	 * 		"name": "locationName"
+	 * }
+	 *
+	 */
+	@GetMapping("/activeDoctors")
+	public ResponseEntity<?> getActiveDoctors(@RequestBody HashMap<String, String> request){
+		Location location = locationRepo.findByName(request.get("name")).orElse(null);
+		if(location==null) {
+			return ResponseEntity.badRequest().body("Error: Location with specified name not found in database.");
+		}
+		
+		HashSet<Doctor> activeDoctors = location.getActiveDoctors();
+		
+		return ResponseEntity.ok(activeDoctors);
+	}
+	
+	/* Request Body
+	 * {
+	 * 		"name": "locationName"
+	 * }
+	 *
+	 */
+	@GetMapping("/activePatients")
+	public ResponseEntity<?> getActivePatients(@RequestBody HashMap<String, String> request){
+		Location location = locationRepo.findByName(request.get("name")).orElse(null);
+		if(location==null) {
+			return ResponseEntity.badRequest().body("Error: Location with specified name not found in database.");
+		}
+		
+		HashSet<User> activePatients = location.getActivePatients();
+		
+		return ResponseEntity.ok(activePatients);
+	}
 }
