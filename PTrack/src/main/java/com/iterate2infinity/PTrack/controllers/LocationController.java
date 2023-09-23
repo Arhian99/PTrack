@@ -108,6 +108,9 @@ public class LocationController {
 		
 		if(request.get("role").equals("ROLE_USER")) {
 			User user = userRepo.findByEmail(request.get("email")).orElse(null);
+			if(user.getIsCheckedIn()) {
+				return ResponseEntity.badRequest().body("Error: User is already checked in at a location");
+			}
 			location.addActivePatient(user);
 			locationRepo.save(location);
 			
@@ -118,6 +121,9 @@ public class LocationController {
 			
 		} else if (request.get("role").equals("ROLE_DOCTOR")) {
 			Doctor doctor = doctorRepo.findByEmail(request.get("email")).orElse(null);
+			if(doctor.getIsCheckedIn()) {
+				return ResponseEntity.badRequest().body("Error: Doctor is already checked in at a location.");
+			}
 			location.addActiveDoctor(doctor);
 			locationRepo.save(location);
 			
