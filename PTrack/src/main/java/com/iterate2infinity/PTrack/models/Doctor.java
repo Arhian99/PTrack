@@ -6,6 +6,7 @@ import java.util.Set;
 import org.bson.types.ObjectId;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="doctors")
@@ -18,7 +19,9 @@ public class Doctor {
 	private String password;
 	private Boolean isEnabled;
 	private Boolean isCheckedIn;
-	
+	@DBRef
+	private Location currentLocation;
+	@DBRef
 	private Set<Role> roles = new HashSet<>();
 	
 	public Boolean getIsCheckedIn() {
@@ -67,16 +70,26 @@ public class Doctor {
 		this.password = password;
 		this.isEnabled = false;
 		this.isCheckedIn = false;
+		this.currentLocation = null;
 	}
 	public Doctor() {
 		this.isEnabled = false;
 		this.isCheckedIn = false;
+		this.currentLocation = null;
 	}
 	public Boolean getIsEnabled() {
 		return isEnabled;
 	}
 	public void setIsEnabled(Boolean isEnabled) {
 		this.isEnabled = isEnabled;
+	}
+
+	public Location getCurrentLocation() {
+		return currentLocation;
+	}
+
+	public void setCurrentLocation(Location currentLocation) {
+		this.currentLocation = currentLocation;
 	}
 	
 	

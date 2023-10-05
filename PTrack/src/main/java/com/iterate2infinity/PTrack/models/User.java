@@ -18,7 +18,9 @@ public class User {
 	private String password;
 	private Boolean isEnabled;
 	private Boolean isCheckedIn;
-	
+	@DBRef
+	private Location currentLocation;
+
 	@DBRef
 	private Set<Role> roles= new HashSet<>();
 		
@@ -68,10 +70,13 @@ public class User {
 		this.password = password;
 		this.isEnabled=false;
 		this.isCheckedIn = false;
+		this.currentLocation = null;
+
 	}
 	public User() {
 		this.isEnabled=false;
 		this.isCheckedIn=false;
+		this.currentLocation = null;
 	}
 	
 	public Boolean getIsEnabled() {
@@ -79,6 +84,14 @@ public class User {
 	}
 	public void setIsEnabled(Boolean isEnabled) {
 		this.isEnabled = isEnabled;
+	}
+
+	public Location getCurrentLocation() {
+		return currentLocation;
+	}
+
+	public void setCurrentLocation(Location currentLocation) {
+		this.currentLocation = currentLocation;
 	}
 
 	

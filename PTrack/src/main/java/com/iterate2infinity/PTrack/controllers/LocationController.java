@@ -102,38 +102,103 @@ public class LocationController {
 	@PostMapping("/checkIn")
 	public ResponseEntity<?> checkIn(@RequestBody HashMap<String, String> request){
 		Location location = locationRepo.findByName(request.get("name")).orElse(null);
-		if(location == null) {
+		if(location.equals(null)) {
 			return ResponseEntity.badRequest().body("Error: Location not found in database.");
 		}
 		
 		if(request.get("role").equals("ROLE_USER")) {
 			User user = userRepo.findByEmail(request.get("email")).orElse(null);
-			if(user.getIsCheckedIn()) {
+			if(user.equals(null)) {
+				return ResponseEntity.badRequest().body("Error: User not found in database.");
+			} else if(user.getIsCheckedIn()) {
 				return ResponseEntity.badRequest().body("Error: User is already checked in at a location");
 			}
 			location.addActivePatient(user);
 			locationRepo.save(location);
 			
 			user.setIsCheckedIn(true);
+			user.setCurrentLocation(location);
 			userRepo.save(user);
 			
-			return ResponseEntity.ok(location);
+			return ResponseEntity.ok(user);
 			
 		} else if (request.get("role").equals("ROLE_DOCTOR")) {
 			Doctor doctor = doctorRepo.findByEmail(request.get("email")).orElse(null);
-			if(doctor.getIsCheckedIn()) {
+			if(doctor.equals(null)) {
+				return ResponseEntity.badRequest().body("Error: Doctor not found in database.");
+			} else if(doctor.getIsCheckedIn()) {
 				return ResponseEntity.badRequest().body("Error: Doctor is already checked in at a location.");
 			}
+			
 			location.addActiveDoctor(doctor);
 			locationRepo.save(location);
 			
 			doctor.setIsCheckedIn(true);
+			doctor.setCurrentLocation(location);
 			doctorRepo.save(doctor);
 			
-			return ResponseEntity.ok(location/*doctor.getUsername()+" has been checked in."*/);
+			return ResponseEntity.ok(doctor);
 		}
 		
 		return ResponseEntity.badRequest().build();
+	}
+	
+	/* Request Body
+	 * {
+
+	 * 		"email": "userEmail",
+	 * 		"role": "userRole"
+	 * }
+	 */
+	@PostMapping("/checkOut")
+	public ResponseEntity<?> checkOut(@RequestBody HashMap<String, String> request){
+		User patient;
+		Doctor doctor;
+		
+		if(request.get("role").equals("ROLE_USER")) {
+			patient = userRepo.findByEmail(request.get("email")).orElse(null);
+			
+			if(patient.equals(null)) {
+				return ResponseEntity.badRequest().body("Error: User not found in database.");
+				
+			} else if(!patient.getIsCheckedIn() || patient.getCurrentLocation().equals(null)) {
+				return ResponseEntity.badRequest().body("Error: User is not currently checked in or checked in location not found");
+			}
+			
+			Location currentLocation = patient.getCurrentLocation();
+			currentLocation.getActivePatients().remove(patient);
+			locationRepo.save(currentLocation);
+			
+			patient.setIsCheckedIn(false);
+			patient.setCurrentLocation(null);
+			userRepo.save(patient);
+			
+			return ResponseEntity.ok("User successfully Checked Out.");
+			
+			
+		} else if(request.get("role").equals("ROLE_DOCTOR")) {
+			doctor = doctorRepo.findByEmail(request.get("email")).orElse(null);
+			
+			if(doctor.equals(null)) {
+				return ResponseEntity.badRequest().body("Error: Doctor not found in database.");
+				
+			} else if(!doctor.getIsCheckedIn() || doctor.getCurrentLocation().equals(null)) {
+				return ResponseEntity.badRequest().body("Error: Doctor is not currently checked in or checked in location not found");
+			}
+			
+			Location currentLocation = doctor.getCurrentLocation();
+			currentLocation.getActiveDoctors().remove(doctor);
+			locationRepo.save(currentLocation);
+			
+			doctor.setIsCheckedIn(false);
+			doctor.setCurrentLocation(null);
+			doctorRepo.save(doctor);
+			
+			return ResponseEntity.ok("Doctor successfully Checked Out.");
+		}
+		
+		return ResponseEntity.badRequest().build();
+		
 	}
 	
 	/* Request Body
