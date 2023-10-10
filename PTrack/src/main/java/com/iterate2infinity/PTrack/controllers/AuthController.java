@@ -177,7 +177,7 @@ public class AuthController {
 		emailService.sendConfirmationEmail(jwt);
 		
 		// sends new user to the frontend and HTTP 201
-		return new ResponseEntity<>(newDoc, HttpStatus.CREATED);
+		return new ResponseEntity<>(new JwtResponseDTO_Doctor(jwt, newDoc), HttpStatus.CREATED);
 	}
 	
 	// Same as above but for users
@@ -202,8 +202,7 @@ public class AuthController {
 		
 		emailService.sendConfirmationEmail(jwt);
 		
-		//TODO: Authenticate, set the SecurityContext, generate jwt token and return jwt response with 201 status to the frontend.
-		return new ResponseEntity<>(newUser, HttpStatus.CREATED); //201
+		return new ResponseEntity<>(new JwtResponseDTO(jwt, newUser), HttpStatus.CREATED); //201
 	}
 	
 	/*

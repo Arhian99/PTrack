@@ -3,7 +3,9 @@ package com.iterate2infinity.PTrack.controllers;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import com.iterate2infinity.PTrack.DTOs.JwtResponseDTO_Doctor;
 import com.iterate2infinity.PTrack.models.Doctor;
 import com.iterate2infinity.PTrack.models.Location;
 import com.iterate2infinity.PTrack.models.User;
@@ -12,6 +14,7 @@ import com.iterate2infinity.PTrack.repos.LocationRepository;
 import com.iterate2infinity.PTrack.repos.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,8 +40,22 @@ public class LocationController {
 	@GetMapping("/all")
 	public ResponseEntity<?> getAllLocations() {
 		List<Location> locations = locationRepo.findAll();
-		return ResponseEntity.ok(locations);
+
+		return ResponseEntity
+				.ok()
+				.cacheControl(CacheControl.empty().sMaxAge(4, TimeUnit.HOURS).staleWhileRevalidate(20, TimeUnit.HOURS))
+				.eTag(locations.get(0).toString()) // TODO: find appropriate eTag
+				.body(locations);
+		/*
+		 *  - CacheControl: s-MaxAge=2hrs, staleWhileRevalidate=22hrs
+		 *  - Will reuse the same response from the cache for 4 hours after the response has been generated. 
+		 *  - Then for the next 20 hours it will keep using the same response (even if stale) but will revalidate and/or 
+		 *    update the cache in the background if the content of the response has changed, every time it revalidates the 
+		 *    4hr and the 20hr timer resets
+		 */
 	}
+	
+	
 	
 	/* Request Body
 	 * {
@@ -96,6 +113,7 @@ public class LocationController {
 	 * {
 	 * 		"name": "locationName",
 	 * 		"email": "userEmail",
+	 * 		"jwt": "userJWT,
 	 * 		"role": "userRole"
 	 * }
 	 */
@@ -106,23 +124,23 @@ public class LocationController {
 			return ResponseEntity.badRequest().body("Error: Location not found in database.");
 		}
 		
-		if(request.get("role").equals("ROLE_USER")) {
-			User user = userRepo.findByEmail(request.get("email")).orElse(null);
-			if(user.equals(null)) {
-				return ResponseEntity.badRequest().body("Error: User not found in database.");
-			} else if(user.getIsCheckedIn()) {
-				return ResponseEntity.badRequest().body("Error: User is already checked in at a location");
-			}
-			location.addActivePatient(user);
-			locationRepo.save(location);
-			
-			user.setIsCheckedIn(true);
-			user.setCurrentLocation(location);
-			userRepo.save(user);
-			
-			return ResponseEntity.ok(user);
-			
-		} else if (request.get("role").equals("ROLE_DOCTOR")) {
+//		if(request.get("role").equals("ROLE_USER")) {
+//			User user = userRepo.findByEmail(request.get("email")).orElse(null);
+//			if(user.equals(null)) {
+//				return ResponseEntity.badRequest().body("Error: User not found in database.");
+//			} else if(user.getIsCheckedIn()) {
+//				return ResponseEntity.badRequest().body("Error: User is already checked in at a location");
+//			}
+//			location.addActivePatient(user);
+//			locationRepo.save(location);
+//			
+//			user.setIsCheckedIn(true);
+//			user.setCurrentLocation(location);
+//			userRepo.save(user);
+//			
+//			return ResponseEntity.ok(user);
+//			
+//		} else if (request.get("role").equals("ROLE_DOCTOR")) {
 			Doctor doctor = doctorRepo.findByEmail(request.get("email")).orElse(null);
 			if(doctor.equals(null)) {
 				return ResponseEntity.badRequest().body("Error: Doctor not found in database.");
@@ -137,46 +155,47 @@ public class LocationController {
 			doctor.setCurrentLocation(location);
 			doctorRepo.save(doctor);
 			
-			return ResponseEntity.ok(doctor);
-		}
-		
-		return ResponseEntity.badRequest().build();
+			return ResponseEntity.ok(new JwtResponseDTO_Doctor(request.get("jwt"), doctor));
+//		}
+//		
+//		return ResponseEntity.badRequest().build();
 	}
 	
 	/* Request Body
 	 * {
 
 	 * 		"email": "userEmail",
+	 * 		"jwt": "userJWT,
 	 * 		"role": "userRole"
 	 * }
 	 */
 	@PostMapping("/checkOut")
 	public ResponseEntity<?> checkOut(@RequestBody HashMap<String, String> request){
-		User patient;
+//		User patient;
 		Doctor doctor;
-		
-		if(request.get("role").equals("ROLE_USER")) {
-			patient = userRepo.findByEmail(request.get("email")).orElse(null);
-			
-			if(patient.equals(null)) {
-				return ResponseEntity.badRequest().body("Error: User not found in database.");
-				
-			} else if(!patient.getIsCheckedIn() || patient.getCurrentLocation().equals(null)) {
-				return ResponseEntity.badRequest().body("Error: User is not currently checked in or checked in location not found");
-			}
-			
-			Location currentLocation = patient.getCurrentLocation();
-			currentLocation.getActivePatients().remove(patient);
-			locationRepo.save(currentLocation);
-			
-			patient.setIsCheckedIn(false);
-			patient.setCurrentLocation(null);
-			userRepo.save(patient);
-			
-			return ResponseEntity.ok("User successfully Checked Out.");
-			
-			
-		} else if(request.get("role").equals("ROLE_DOCTOR")) {
+//		
+//		if(request.get("role").equals("ROLE_USER")) {
+//			patient = userRepo.findByEmail(request.get("email")).orElse(null);
+//			
+//			if(patient.equals(null)) {
+//				return ResponseEntity.badRequest().body("Error: User not found in database.");
+//				
+//			} else if(!patient.getIsCheckedIn() || patient.getCurrentLocation().equals(null)) {
+//				return ResponseEntity.badRequest().body("Error: User is not currently checked in or checked in location not found");
+//			}
+//			
+//			Location currentLocation = patient.getCurrentLocation();
+//			currentLocation.getActivePatients().remove(patient);
+//			locationRepo.save(currentLocation);
+//			
+//			patient.setIsCheckedIn(false);
+//			patient.setCurrentLocation(null);
+//			userRepo.save(patient);
+//			
+//			return ResponseEntity.ok("User successfully Checked Out.");
+//			
+//			
+//		} else if(request.get("role").equals("ROLE_DOCTOR")) {
 			doctor = doctorRepo.findByEmail(request.get("email")).orElse(null);
 			
 			if(doctor.equals(null)) {
@@ -194,10 +213,10 @@ public class LocationController {
 			doctor.setCurrentLocation(null);
 			doctorRepo.save(doctor);
 			
-			return ResponseEntity.ok("Doctor successfully Checked Out.");
-		}
-		
-		return ResponseEntity.badRequest().build();
+			return ResponseEntity.ok(new JwtResponseDTO_Doctor(request.get("jwt"), doctor));
+//		}
+//		
+//		return ResponseEntity.badRequest().build();
 		
 	}
 	
@@ -237,8 +256,10 @@ public class LocationController {
 			return ResponseEntity.badRequest().body("Error: Location with specified name not found in database.");
 		}  
 		location.getActivePatients().forEach(patient -> {
-			patient.setIsCheckedIn(false);
+			patient.setIsInVisit(false);
+			patient.setCurrentLocation(null);
 			userRepo.save(patient);
+			//TODO: Update Visit object status to finalized (and save in db) or to rejected (and remove from db)
 		});
 		location.clearActivePatients();
 		locationRepo.save(location);
@@ -267,8 +288,10 @@ public class LocationController {
 		location.clearActiveDoctors();
 
 		location.getActivePatients().forEach(patient -> {
-			patient.setIsCheckedIn(false);
+			patient.setIsInVisit(false);
+			patient.setCurrentLocation(null);
 			userRepo.save(patient);
+			//TODO: Update Visit object status to finalized (and save in db) or to rejected (and remove from db)
 		});
 		
 		location.clearActivePatients();

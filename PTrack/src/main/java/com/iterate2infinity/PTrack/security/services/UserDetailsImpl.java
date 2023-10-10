@@ -25,7 +25,6 @@ public class UserDetailsImpl implements UserDetails {
 	@JsonIgnore
 	private String password;
 	private Boolean isEnabled;
-	private Boolean isCheckedIn;
 	
 	//ROLE_XXXXX
 	private Collection<? extends GrantedAuthority> authorities;
@@ -35,20 +34,18 @@ public class UserDetailsImpl implements UserDetails {
 		return authorities;
 	}
 
-	public UserDetailsImpl(ObjectId id, String username, String email, String password, Boolean isEnabled, Collection<? extends GrantedAuthority> authorities, Boolean isCheckedIn) {
+	public UserDetailsImpl(ObjectId id, String username, String email, String password, Boolean isEnabled, Collection<? extends GrantedAuthority> authorities) {
 		this.id=id;
 		this.username=username;
 		this.email=email;
 		this.password=password;
 		this.isEnabled=isEnabled;
 		this.authorities=authorities;
-		this.isCheckedIn = isCheckedIn;
 	}
 	
 	// by default when new user is created the account is disabled until email is confirmed
 	public UserDetailsImpl() {
 		this.isEnabled=false;
-		this.isCheckedIn = false;
 	}
 	
 	public static UserDetailsImpl build() {
@@ -66,8 +63,7 @@ public class UserDetailsImpl implements UserDetails {
 						user.getEmail(),
 						user.getPassword(),
 						user.getIsEnabled(),
-						authorities,
-						user.getIsCheckedIn());
+						authorities);
 	}
 	
 	public static UserDetailsImpl build(Doctor doctor) {
@@ -81,8 +77,7 @@ public class UserDetailsImpl implements UserDetails {
 						doctor.getEmail(),
 						doctor.getPassword(),
 						doctor.getIsEnabled(),
-						authorities,
-						doctor.getIsCheckedIn());
+						authorities);
 	}
 	
 	public ObjectId getId() {
@@ -115,14 +110,6 @@ public class UserDetailsImpl implements UserDetails {
 
 	public boolean isEnabled() {
 		return isEnabled;
-	}
-
-	public boolean getIsCheckedIn() {
-		return isCheckedIn;
-	}
-	
-	public void setIsCheckedIn(boolean isCheckedIn) {
-		this.isCheckedIn = isCheckedIn;
 	}
 	
 }

@@ -5,6 +5,8 @@ import java.util.Set;
 
 import org.bson.types.ObjectId;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -84,6 +86,7 @@ public class Doctor {
 		this.isEnabled = isEnabled;
 	}
 
+	@JsonManagedReference
 	public Location getCurrentLocation() {
 		return currentLocation;
 	}

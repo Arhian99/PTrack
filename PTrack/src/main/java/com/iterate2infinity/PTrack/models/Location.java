@@ -4,6 +4,8 @@ import java.util.HashSet;
 
 import org.bson.types.ObjectId;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,6 +22,7 @@ public class Location {
 	@DBRef
 	private HashSet<User> activePatients;
 	
+	@JsonBackReference
 	public HashSet<Doctor> getActiveDoctors() {
 		return activeDoctors;
 	}
@@ -28,6 +31,7 @@ public class Location {
 		this.activeDoctors = activeDoctors;
 	}
 
+	@JsonBackReference
 	public HashSet<User> getActivePatients() {
 		return activePatients;
 	}

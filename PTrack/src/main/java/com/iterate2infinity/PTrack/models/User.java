@@ -4,6 +4,8 @@ import java.util.Set;
 
 import org.bson.types.ObjectId;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,19 +19,19 @@ public class User {
 	private String email;
 	private String password;
 	private Boolean isEnabled;
-	private Boolean isCheckedIn;
+	private Boolean isInVisit;
 	@DBRef
 	private Location currentLocation;
 
 	@DBRef
 	private Set<Role> roles= new HashSet<>();
 		
-	public Boolean getIsCheckedIn() {
-		return isCheckedIn;
+	public Boolean getIsInVisit() {
+		return isInVisit;
 	}
 	
-	public void setIsCheckedIn(Boolean isCheckedIn) {
-		this.isCheckedIn = isCheckedIn;
+	public void setIsInVisit(Boolean isInVisit) {
+		this.isInVisit = isInVisit;
 	}
 	
 	public ObjectId getId() {
@@ -69,13 +71,13 @@ public class User {
 		this.email = email;
 		this.password = password;
 		this.isEnabled=false;
-		this.isCheckedIn = false;
+		this.isInVisit = false;
 		this.currentLocation = null;
 
 	}
 	public User() {
 		this.isEnabled=false;
-		this.isCheckedIn=false;
+		this.isInVisit=false;
 		this.currentLocation = null;
 	}
 	
@@ -86,6 +88,7 @@ public class User {
 		this.isEnabled = isEnabled;
 	}
 
+	@JsonManagedReference
 	public Location getCurrentLocation() {
 		return currentLocation;
 	}

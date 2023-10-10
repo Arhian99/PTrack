@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Visit {
 	@Id
 	private ObjectId id;
+	
 	private Date date;
 	@DBRef
 	private Location location;
@@ -19,6 +20,9 @@ public class Visit {
 	private User patient;
 	@DBRef
 	private Doctor doctor;
+	
+	private EVisitStatus status;
+	
 	public ObjectId getId() {
 		return id;
 	}
@@ -54,6 +58,12 @@ public class Visit {
 		this.location = location;
 		this.patient = patient;
 		this.doctor = doctor;
+	}
+	public EVisitStatus getStatus() {
+		return status;
+	}
+	public void setStatus(EVisitStatus status) {
+		this.status = status;
 	}
 	
 	
