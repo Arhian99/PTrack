@@ -47,11 +47,11 @@ public class LocationController {
 				.eTag(locations.get(0).toString()) // TODO: find appropriate eTag
 				.body(locations);
 		/*
-		 *  - CacheControl: s-MaxAge=2hrs, staleWhileRevalidate=22hrs
+		 *  - CacheControl: s-MaxAge=4hrs, staleWhileRevalidate=20hrs
 		 *  - Will reuse the same response from the cache for 4 hours after the response has been generated. 
 		 *  - Then for the next 20 hours it will keep using the same response (even if stale) but will revalidate and/or 
 		 *    update the cache in the background if the content of the response has changed, every time it revalidates the 
-		 *    4hr and the 20hr timer resets
+		 *    response; the 4hr and the 20hr timer resets
 		 */
 	}
 	
