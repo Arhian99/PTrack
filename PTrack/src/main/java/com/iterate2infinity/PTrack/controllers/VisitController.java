@@ -2,7 +2,6 @@ package com.iterate2infinity.PTrack.controllers;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 import com.iterate2infinity.PTrack.models.Doctor;
@@ -74,4 +73,5 @@ public class VisitController {
 		// return 200 reponse with new visit object in the body
 		
 	}
+	
 }
