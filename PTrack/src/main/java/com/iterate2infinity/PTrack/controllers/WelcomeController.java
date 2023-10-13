@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 // This api controllers takes GET requests and returns single doctor or single user objects as decided by the email that is passed in
@@ -30,15 +31,15 @@ public class WelcomeController {
 	
 	@GetMapping("/user")
 	//@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-	public ResponseEntity<?> getUser(@RequestBody HashMap<String, String> emailMap) {
-		User user = userRepo.findByEmail(emailMap.get("email")).orElse(null);
+	public ResponseEntity<?> getUser(@RequestParam("username")String username) {
+		User user = userRepo.findByUsername(username).orElse(null);
 		return ResponseEntity.ok(user);
 	}
 	
 	@GetMapping("/doctor")
 	//@PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
-	public ResponseEntity<?> getDoctor(@RequestBody HashMap<String, String> emailMap){
-		Doctor doctor = doctorRepo.findByEmail(emailMap.get("email")).orElse(null);
+	public ResponseEntity<?> getDoctor(@RequestParam("username")String username){
+		Doctor doctor = doctorRepo.findByUsername(username).orElse(null);
 		return ResponseEntity.ok(doctor);
 	}
 

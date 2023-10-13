@@ -23,7 +23,7 @@ public class PTrackApplication {
  *  TODO: 
  *  	- Extract business logic in controllers into service classes.
  *  	- Configure CORS and CSRF policies.
- *  	- Add caching headers to responses --> across all the controllers and end points
+ *  	- Add CacheControl caching headers to responses --> across all the controllers and end points
  *  		- locations responses  --> Cache-Control: max-age=4hrs, stale-while-revalidate=20hrs
  *  		- visits responses  --> Cache-Control: max-age=43200(12hours), stale-while-revalidate=43200(12hours)
  *  	- Implement caching between db and controllers and add appropriate CacheControl headers to controllers (see above bullet point)
