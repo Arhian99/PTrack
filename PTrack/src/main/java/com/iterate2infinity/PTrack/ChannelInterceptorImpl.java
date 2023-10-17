@@ -1,5 +1,8 @@
 package com.iterate2infinity.PTrack;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.iterate2infinity.PTrack.security.JWT.JwtUtils;
 import com.iterate2infinity.PTrack.security.services.UserDetailsServiceImpl;
 
@@ -14,6 +17,7 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,16 +36,31 @@ public class ChannelInterceptorImpl implements WebSocketMessageBrokerConfigurer 
 	@Autowired
 	private UserDetailsServiceImpl userDetailsService;
 	
+	private static final Logger channelInterceptorLogger = LoggerFactory.getLogger(ChannelInterceptor.class);
+
+	
 	@Override
 	public void configureClientInboundChannel(ChannelRegistration registration) {
 		registration.interceptors(new ChannelInterceptor() {
+			
 			@Override
 			public Message<?> preSend(Message<?> message, MessageChannel channel){
+				
 				StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+				channelInterceptorLogger.info("In ChannelInterceptor Inboud Channel Configurer preSend() ConnectCommand=false");
+
 				if(StompCommand.CONNECT.equals(accessor.getCommand())) {
+					channelInterceptorLogger.info("In ChannelInterceptor Inboud Channel Configurer preSend() ConnectCommand=true");
+
 					String jwt = parseJwt(accessor);
-					
-					if(jwt!=null && jwtUtils.validateJwtToken(jwt)) {
+
+					if(jwt.equals(null)) {
+						
+						channelInterceptorLogger.error("Error: JWT is null, unable to authenticate websocket connection.");
+						throw new BadCredentialsException("Error: Unable to authenticate websocket connection.");
+						
+					} else if(jwt!=null && jwtUtils.validateJwtToken(jwt)) {
+						
 						String email = jwtUtils.getEmailFromJwtToken(jwt);
 						UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 						UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -49,6 +68,8 @@ public class ChannelInterceptorImpl implements WebSocketMessageBrokerConfigurer 
 						
 						SecurityContextHolder.getContext().setAuthentication(authentication);
 						accessor.setUser(authentication);
+						
+						channelInterceptorLogger.info("User authenticated successfully, User: "+ authentication.getName());
 					}
 					
 					
@@ -61,12 +82,15 @@ public class ChannelInterceptorImpl implements WebSocketMessageBrokerConfigurer 
 	
 	
 	private String parseJwt(StompHeaderAccessor accessor) {
-		String headerAuth = (String) accessor.getHeader("Authorization");
+		String auth = accessor.getNativeHeader("Authorization").get(0);
+
+		channelInterceptorLogger.info("In parseJwt()");
 		
-		if(StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-			return headerAuth.substring(7, headerAuth.length());
+		if(StringUtils.hasText(auth) && auth.startsWith("Bearer ")) {
+			channelInterceptorLogger.info("JWT parsed succesfully.");
+			return auth.substring(7, auth.length());
 		}
-		
+		channelInterceptorLogger.info("Unable to parse JWT");
 		return null;
 	}
 }

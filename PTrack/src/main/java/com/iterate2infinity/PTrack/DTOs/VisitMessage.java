@@ -2,6 +2,7 @@ package com.iterate2infinity.PTrack.DTOs;
 
 public class VisitMessage {
 	private String from;
+	private String to;
 	private String patientEmail;
 	private String doctorEmail;
 	private String locationName;
@@ -15,6 +16,7 @@ public class VisitMessage {
 	
 	public VisitMessage() {
 		from="";
+		to="";
 		patientEmail="";
 		doctorEmail="";
 		locationName="";
@@ -26,6 +28,14 @@ public class VisitMessage {
 
 	public void setFrom(String from) {
 		this.from = from;
+	}
+	
+	public String getTo() {
+		return to;
+	}
+
+	public void setTo(String to) {
+		this.to = to;
 	}
 
 	public String getPatientEmail() {

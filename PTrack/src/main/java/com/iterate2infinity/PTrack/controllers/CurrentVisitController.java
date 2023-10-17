@@ -1,38 +1,47 @@
 package com.iterate2infinity.PTrack.controllers;
 
-import com.iterate2infinity.PTrack.DTOs.VisitMessage;
-
 import java.security.Principal;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.iterate2infinity.PTrack.DTOs.VisitMessage;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 @Controller
 //@MessageMapping("/currentVisit")
 public class CurrentVisitController {
+	private static final Logger logger = LoggerFactory.getLogger(CurrentVisitController.class);
 
+	@Autowired
+	private SimpMessagingTemplate simpMessagingTemplate;
 	
 	/*	Payload
 	 * 	{
-	 * 		"from": "userEmail",
+	 * 		"from": "username",
+	 * 		"to": "username",
 	 * 		"patient: "patientEmail",
 	 * 		"doctor": "doctorEmail",
 	 * 		"location": "locationName"
 	 * 	}
 	 */
 	
-//	@SendToUser("/queue/currentVisit")
-//	@MessageMapping("/new")
-//	public String newVisit(@Payload VisitMessage message) {
-//		return "New Visit Request from: "+message.getFrom()+" @ "+message.getLocationName();
-//	}
-	@MessageMapping("/currentVisit") //   /app/currentVisit/new
-	@SendToUser("/queue/currentVisit")
-	public String newVisit(@Payload VisitMessage message) {
-		return "New Visit Request from: "+message.getFrom();
+
+	@MessageMapping("/currentVisit") // --> /app/currentVisit
+	public void newVisit(@Payload VisitMessage message, Principal principal) {
+		
+		String to=message.getTo();
+		String msg= "New Visit Request from: "+message.getFrom();
+		
+		logger.info("In CurrentVisitController: to: "+to);
+		logger.info("In CurrentVisitController: msg: "+msg);
+	
+	    simpMessagingTemplate.convertAndSendToUser(to, "/queue/currentVisit", msg);
+	    logger.info("In CurrentVisitController, message sent!");
 	}
 }

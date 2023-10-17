@@ -2,6 +2,9 @@ package com.iterate2infinity.PTrack;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -21,9 +24,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
 	public void configureMessageBroker(MessageBrokerRegistry config) {
 		config.enableSimpleBroker("/topic", "/queue");
 		config.setApplicationDestinationPrefixes("/app");
-//		config.setPreservePublishOrder(true);
-//		config.setUserDestinationPrefix("/user/");
-		
+		config.setUserDestinationPrefix("/user");
+		config.setPreservePublishOrder(true);		
 	}
 	
 	
@@ -34,13 +36,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
 		
 	}
 	
+	private static final Logger handshakeInterceptorLogger = LoggerFactory.getLogger(HandshakeInterceptor.class);
+
 	public HandshakeInterceptor getInterceptor() {
 		return new HandshakeInterceptor() {
 
 			@Override
 			public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 					Map<String, Object> attributes) throws Exception {
-				// TODO Auto-generated method stub
+				
+				handshakeInterceptorLogger.info("In HandshakeInterceptor beforeHandshake()...");
+
 				attributes.put("remoteAddress", request.getRemoteAddress());
 				return true;
 				
@@ -49,8 +55,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
 			@Override
 			public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 					Exception exception) {
-				// TODO Auto-generated method stub
 				
+				handshakeInterceptorLogger.info("In HandshakeInterceptor afterHandshake()...");			
 			}
 
 		};
