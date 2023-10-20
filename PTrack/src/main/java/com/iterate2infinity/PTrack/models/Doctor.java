@@ -25,7 +25,28 @@ public class Doctor {
 	private Location currentLocation;
 	@DBRef
 	private Set<Role> roles = new HashSet<>();
+	@DBRef
+	private HashSet<Visit> currentVisits = new HashSet<>();
 	
+	public void addCurrentVisit(Visit visit){
+		currentVisits.add(visit);
+	}
+	
+	public void removeCurrentVisit(Visit visit) {
+		currentVisits.remove(visit);
+	}
+	
+	public void clearCurrentVisits() {
+		currentVisits.clear();
+	}
+	public HashSet<Visit> getCurrentVisits() {
+		return currentVisits;
+	}
+
+	public void setCurrentVisits(HashSet<Visit> currentVisits) {
+		this.currentVisits = currentVisits;
+	}
+
 	public Boolean getIsCheckedIn() {
 		return isCheckedIn;
 	}

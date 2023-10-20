@@ -4,13 +4,13 @@ public class VisitMessage {
 	private String from;
 	private String to;
 	private String patientEmail;
-	private String doctorEmail;
+	private String doctorUsername;
 	private String locationName;
 	
-	public VisitMessage(String from, String patientEmail, String doctorEmail, String locationName) {
+	public VisitMessage(String from, String patientEmail, String doctorUsername, String locationName) {
 		this.from = from;
 		this.patientEmail = patientEmail;
-		this.doctorEmail = doctorEmail;
+		this.doctorUsername = doctorUsername;
 		this.locationName = locationName;
 	}
 	
@@ -18,7 +18,7 @@ public class VisitMessage {
 		from="";
 		to="";
 		patientEmail="";
-		doctorEmail="";
+		doctorUsername="";
 		locationName="";
 	}
 
@@ -46,12 +46,12 @@ public class VisitMessage {
 		this.patientEmail = patientEmail;
 	}
 
-	public String getDoctorEmail() {
-		return doctorEmail;
+	public String getDoctorUsername() {
+		return doctorUsername;
 	}
 
-	public void setDoctorEmail(String doctorEmail) {
-		this.doctorEmail = doctorEmail;
+	public void setDoctorUsername(String doctorUsername) {
+		this.doctorUsername = doctorUsername;
 	}
 
 	public String getLocationName() {
@@ -60,6 +60,12 @@ public class VisitMessage {
 
 	public void setLocationName(String locationName) {
 		this.locationName = locationName;
+	}
+
+	@Override
+	public String toString() {
+		return "VisitMessage [from=" + from + ", to=" + to + ", patientEmail=" + patientEmail + ", doctorUsername="
+				+ doctorUsername + ", locationName=" + locationName + "]";
 	}
 	
 	

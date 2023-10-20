@@ -17,6 +17,7 @@ public class Location {
 	private ObjectId id;
 	private String name;
 	private String address;
+	
 	@DBRef
 	private HashSet<Doctor> activeDoctors;
 	@DBRef

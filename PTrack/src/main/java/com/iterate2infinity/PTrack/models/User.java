@@ -20,6 +20,10 @@ public class User {
 	private String password;
 	private Boolean isEnabled;
 	private Boolean isInVisit;
+	
+	@DBRef
+	private Visit currentVisit;
+	
 	@DBRef
 	private Location currentLocation;
 
@@ -36,6 +40,29 @@ public class User {
 	
 	public ObjectId getId() {
 		return id;
+	}
+	public User(String username, String email, String password) {
+		this.username = username;
+		this.email = email;
+		this.password = password;
+		this.isEnabled = false;
+		this.isInVisit = false;
+		this.currentVisit = null;
+		this.currentLocation = null;
+	}
+	
+	public User() {
+		this.isEnabled = false;
+		this.isInVisit = false;
+		this.currentVisit = null;
+		this.currentLocation = null;
+	}
+	
+	public Visit getCurrentVisit() {
+		return currentVisit;
+	}
+	public void setCurrentVisit(Visit currentVisit) {
+		this.currentVisit = currentVisit;
 	}
 	public void setId(ObjectId id) {
 		this.id = id;
@@ -65,21 +92,21 @@ public class User {
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
-	public User(String username, String email, String password) {
-		super();
-		this.username = username;
-		this.email = email;
-		this.password = password;
-		this.isEnabled=false;
-		this.isInVisit = false;
-		this.currentLocation = null;
-
-	}
-	public User() {
-		this.isEnabled=false;
-		this.isInVisit=false;
-		this.currentLocation = null;
-	}
+//	public User(String username, String email, String password) {
+//		super();
+//		this.username = username;
+//		this.email = email;
+//		this.password = password;
+//		this.isEnabled=false;
+//		this.isInVisit = false;
+//		this.currentLocation = null;
+//
+//	}
+//	public User() {
+//		this.isEnabled=false;
+//		this.isInVisit=false;
+//		this.currentLocation = null;
+//	}
 	
 	public Boolean getIsEnabled() {
 		return isEnabled;

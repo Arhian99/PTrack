@@ -8,18 +8,24 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Document(collection="visits")
 public class Visit {
 	@Id
 	private ObjectId id;
 	
 	private Date date;
-	@DBRef
-	private Location location;
-	@DBRef
-	private User patient;
-	@DBRef
-	private Doctor doctor;
+
+	private String locationName;
+	private ObjectId locationId;
+	
+	private String patientUsername;
+	private ObjectId patientId;
+	
+	private String doctorUsername;
+	private ObjectId doctorId;
 	
 	private EVisitStatus status;
 	
@@ -29,42 +35,80 @@ public class Visit {
 	public void setId(ObjectId id) {
 		this.id = id;
 	}
-	public Date getDate() {
-		return date;
+	
+	public String getLocationName() {
+		return locationName;
 	}
-	public void setdate(Date date) {
-		this.date = date;
+	
+	public void setLocationName(String locationName) {
+		this.locationName = locationName;
 	}
-	public Location getLocation() {
-		return location;
+	
+	public String getPatientUsername() {
+		return patientUsername;
 	}
-	public void setLocation(Location location) {
-		this.location = location;
+	
+	public void setPatientUsername(String patientUsername) {
+		this.patientUsername = patientUsername;
 	}
-	public User getPatient() {
-		return patient;
+	
+	public String getDoctorUsername() {
+		return doctorUsername;
 	}
-	public void setPatient(User patient) {
-		this.patient = patient;
+	public void setDoctorUsername(String doctorUsername) {
+		this.doctorUsername = doctorUsername;
 	}
-	public Doctor getDoctor() {
-		return doctor;
-	}
-	public void setDoctor(Doctor doctor) {
-		this.doctor = doctor;
-	}
-	public Visit(Date date, Location location, User patient, Doctor doctor) {
-		this.date = date;
-		this.location = location;
-		this.patient = patient;
-		this.doctor = doctor;
-	}
+
 	public EVisitStatus getStatus() {
 		return status;
 	}
 	public void setStatus(EVisitStatus status) {
 		this.status = status;
 	}
+	public Date getDate() {
+		return date;
+	}
+	public void setDate(Date date) {
+		this.date = date;
+	}
+	public ObjectId getLocationId() {
+		return locationId;
+	}
+	public void setLocation_id(ObjectId locationId) {
+		this.locationId = locationId;
+	}
+	public ObjectId getPatientId() {
+		return patientId;
+	}
+	public void setPatient_id(ObjectId patientId) {
+		this.patientId = patientId;
+	}
+	public ObjectId getDoctorId() {
+		return doctorId;
+	}
+	public void setDoctorId(ObjectId doctorId) {
+		this.doctorId = doctorId;
+	}
+	
+	public Visit(Date date, String locationName, ObjectId locationId, String patientUsername, ObjectId patientId,
+			String doctorUsername, ObjectId doctorId, EVisitStatus status) {
+		super();
+		this.date = date;
+		this.locationName = locationName;
+		this.locationId = locationId;
+		this.patientUsername = patientUsername;
+		this.patientId = patientId;
+		this.doctorUsername = doctorUsername;
+		this.doctorId = doctorId;
+		this.status = status;
+	}
+	@Override
+	public String toString() {
+		return "Visit [id=" + id + ", date=" + date + ", locationName=" + locationName + ", locationId=" + locationId
+				+ ", patientUsername=" + patientUsername + ", patientId=" + patientId + ", doctorUsername="
+				+ doctorUsername + ", doctorId=" + doctorId + ", status=" + status + "]";
+	}
+
 	
 	
 }

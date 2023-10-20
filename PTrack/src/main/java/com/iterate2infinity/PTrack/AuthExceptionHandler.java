@@ -22,5 +22,8 @@ public class AuthExceptionHandler {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User account is disabled."); //401
 	}
 	
-
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ResponseEntity<?> handleResourceNotFoundException(ResourceNotFoundException e){
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+	}
 }

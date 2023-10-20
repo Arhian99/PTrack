@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,6 +42,23 @@ public class WelcomeController {
 	public ResponseEntity<?> getDoctor(@RequestParam("username")String username){
 		Doctor doctor = doctorRepo.findByUsername(username).orElse(null);
 		return ResponseEntity.ok(doctor);
+	}
+	
+	
+	// TODO: Remove this endpoint or move to Admin controller, for debugging purposes only
+	@PostMapping("/resetVisits")
+	public ResponseEntity<?> resetVisits(){
+		Doctor doctor = doctorRepo.findByUsername("DoctorOne").orElse(null);
+		User patient = userRepo.findByUsername("Arhian99").orElse(null);
+		
+		doctor.clearCurrentVisits();
+		patient.setIsInVisit(false);
+		patient.setCurrentVisit(null);
+		
+		doctorRepo.save(doctor);
+		userRepo.save(patient);
+		
+		return ResponseEntity.ok("Cleared");
 	}
 
 }
