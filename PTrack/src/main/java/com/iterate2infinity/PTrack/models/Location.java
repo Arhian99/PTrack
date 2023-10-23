@@ -45,8 +45,16 @@ public class Location {
 		activePatients.add(user);
 	}
 	
+	public void removeActivePatient(User user) {
+		activePatients.remove(user);
+	}
+	
 	public void addActiveDoctor(Doctor doctor) {
 		activeDoctors.add(doctor);
+	}
+	
+	public void removeActiveDoctor(Doctor doctor) {
+		activeDoctors.remove(doctor);
 	}
 	
 	public void clearActivePatients() {

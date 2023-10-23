@@ -28,6 +28,15 @@ public class Doctor {
 	@DBRef
 	private HashSet<Visit> currentVisits = new HashSet<>();
 	
+	public void acceptVisit(Visit updatedVisit) {
+		currentVisits.forEach(v -> {
+			if(v.equals(updatedVisit)) {
+				removeCurrentVisit(v);
+				addCurrentVisit(updatedVisit);
+			}
+		});
+	}
+	
 	public void addCurrentVisit(Visit visit){
 		currentVisits.add(visit);
 	}

@@ -5,11 +5,7 @@ import java.util.Date;
 import org.bson.types.ObjectId;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Document(collection="visits")
 public class Visit {
@@ -107,6 +103,21 @@ public class Visit {
 		return "Visit [id=" + id + ", date=" + date + ", locationName=" + locationName + ", locationId=" + locationId
 				+ ", patientUsername=" + patientUsername + ", patientId=" + patientId + ", doctorUsername="
 				+ doctorUsername + ", doctorId=" + doctorId + ", status=" + status + "]";
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj) {
+			return true;
+		}
+		
+		if(obj == null || obj.getClass() != this.getClass()) {
+			return false;
+		} 
+		
+		Visit otherObj = (Visit) obj;
+		
+		return this.id.equals(otherObj.id);
 	}
 
 	
