@@ -1,10 +1,14 @@
 package com.iterate2infinity.PTrack.controllers;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iterate2infinity.PTrack.ResourceNotFoundException;
 import com.iterate2infinity.PTrack.DTOs.StompMessage;
 import com.iterate2infinity.PTrack.DTOs.VisitMessageDTO;
@@ -60,7 +64,7 @@ public class CurrentVisitController {
 	 * 				}
 	 */
 	@MessageMapping("/new") // --> /app/currentVisit/new
-	public void newVisit(@Payload StompMessage message) {
+	public void newVisit(@Payload StompMessage<VisitMessageDTO> message) {
 		logger.info("In CurrentVisitController... /new");
 		
 		// Create new Visit object with provided info and initial status of Pending and save on db
@@ -70,8 +74,7 @@ public class CurrentVisitController {
 		// Add this new visit to the doctor's currentVisits set
 		// Send the patient an UTD patient object with the new visit embedded in the currentVisit field of the patient object
 	
-		
-		VisitMessageDTO visitMessage = (VisitMessageDTO) message.getPayload();
+		VisitMessageDTO visitMessage = message.getPayload();
 		
 		Location visitLocation = locationRepo.findByName(visitMessage.getLocationName()).orElseThrow(() -> new ResourceNotFoundException("No location found on database with the name "+visitMessage.getLocationName()));
 		User visitPatient = userRepo.findByUsername(visitMessage.getPatientUsername()).orElseThrow(() -> new ResourceNotFoundException("No patient found on database with the username "+visitMessage.getPatientUsername()));  
@@ -101,7 +104,7 @@ public class CurrentVisitController {
 	
 	    simpMessagingTemplate.convertAndSendToUser(message.getRecipientUsername(), "/queue/currentVisit/new", visitDoctor);
 	    simpMessagingTemplate.convertAndSendToUser(message.getSenderUsername(), "/queue/currentVisit/new", visitPatient);
-
+	    logger.info(newVisit.getId().toString());
 	    logger.info("In CurrentVisitController, message sent!");
 	}
 	
@@ -118,28 +121,30 @@ public class CurrentVisitController {
 	 * 				}
 	 */
 	@MessageMapping("/accept") // --> /app/currentVisit/accept
-	public void acceptVisit(@Payload StompMessage message) {
+	public void acceptVisit(@Payload StompMessage<VisitMessageDTO> message) {
 		logger.info("In CurrentVisitController... /accept");
-		
+
 		// change visit status to current and update db
 		// update the user and the doctor's currentVisit field with this visit
 		// send back the UTD user and doctor objects to the frontend
 		
-		VisitMessageDTO visitMessage = (VisitMessageDTO) message.getPayload();
-		Visit visit = visitRepo.findById(visitMessage.getVisitID()).orElseThrow(() -> new ResourceNotFoundException("No visit found with the ID: "+visitMessage.getVisitID()));
+		VisitMessageDTO visitMessage = message.getPayload();
+		
+		Visit visit = visitRepo.findById(visitMessage.getVisitID()).orElseThrow(() -> new ResourceNotFoundException("Visit not found in database with id: "+visitMessage.getVisitID()));
+		
 		visit.setStatus(EVisitStatus.VISIT_CURRENT);
 		visitRepo.save(visit);
-		
+
 		User visitPatient = userRepo.findByUsername(visit.getPatientUsername()).orElseThrow(() -> new ResourceNotFoundException("No patient found with username: "+visit.getPatientUsername()));
 		visitPatient.setCurrentVisit(visit);
 		userRepo.save(visitPatient);
 		
 		Doctor visitDoctor = doctorRepo.findByUsername(visit.getDoctorUsername()).orElseThrow(() -> new ResourceNotFoundException("No doctor found with username: "+visit.getDoctorUsername()));
-		visitDoctor.acceptVisit(visit);
-		doctorRepo.save(visitDoctor);
+//		visitDoctor.acceptVisit(visit);
+//		doctorRepo.save(visitDoctor);
 		
-	    simpMessagingTemplate.convertAndSendToUser(message.getRecipientUsername(), "/queue/currentVisit/new", visitDoctor);
-	    simpMessagingTemplate.convertAndSendToUser(message.getSenderUsername(), "/queue/currentVisit/new", visitPatient);
+	    simpMessagingTemplate.convertAndSendToUser(message.getRecipientUsername(), "/queue/currentVisit/new", visitPatient);
+	    simpMessagingTemplate.convertAndSendToUser(message.getSenderUsername(), "/queue/currentVisit/new", visitDoctor);
 
 	    logger.info("In CurrentVisitController, message sent!");
 
@@ -158,15 +163,15 @@ public class CurrentVisitController {
 	 * 				}
 	 */
 	@MessageMapping("/decline")
-	public void declineVisit(@Payload StompMessage message) {
+	public void declineVisit(@Payload StompMessage<VisitMessageDTO> message) {
 		logger.info("In CurrentVisitController... /decline");
 
 		// change visit status to rejected and remove from db
 		// set the patient's currentVisit field to null & isInVisit field to false
 		// remove visit from the doctor's currentVisit set
 		// remove the patient from the location's activePatients set
-		
-		VisitMessageDTO visitMessage = (VisitMessageDTO) message.getPayload();
+		VisitMessageDTO visitMessage = message.getPayload();
+
 		Visit visit = visitRepo.findById(visitMessage.getVisitID()).orElseThrow(() -> new ResourceNotFoundException("No visit found with the ID: "+visitMessage.getVisitID()));
 		visit.setStatus(EVisitStatus.VISIT_REJECTED);
 		
@@ -185,11 +190,9 @@ public class CurrentVisitController {
 		
 		visitRepo.delete(visit);
 		
-	    simpMessagingTemplate.convertAndSendToUser(message.getRecipientUsername(), "/queue/currentVisit/new", visitDoctor);
-	    simpMessagingTemplate.convertAndSendToUser(message.getSenderUsername(), "/queue/currentVisit/new", visitPatient);
+	    simpMessagingTemplate.convertAndSendToUser(message.getRecipientUsername(), "/queue/currentVisit/new", visitPatient);
+	    simpMessagingTemplate.convertAndSendToUser(message.getSenderUsername(), "/queue/currentVisit/new", visitDoctor);
 
 	    logger.info("In CurrentVisitController, message sent!");
-
-		
 	}
 }

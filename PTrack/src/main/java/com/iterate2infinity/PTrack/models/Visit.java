@@ -1,6 +1,7 @@
 package com.iterate2infinity.PTrack.models;
 
 import java.util.Date;
+import java.util.Objects;
 
 import org.bson.types.ObjectId;
 
@@ -10,25 +11,25 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection="visits")
 public class Visit {
 	@Id
-	private ObjectId id;
+	private String id;
 	
 	private Date date;
 
 	private String locationName;
-	private ObjectId locationId;
+	private String locationId;
 	
 	private String patientUsername;
-	private ObjectId patientId;
+	private String patientId;
 	
 	private String doctorUsername;
-	private ObjectId doctorId;
+	private String doctorId;
 	
 	private EVisitStatus status;
 	
-	public ObjectId getId() {
+	public String getId() {
 		return id;
 	}
-	public void setId(ObjectId id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	
@@ -67,27 +68,28 @@ public class Visit {
 	public void setDate(Date date) {
 		this.date = date;
 	}
-	public ObjectId getLocationId() {
+	public String getLocationId() {
 		return locationId;
 	}
-	public void setLocation_id(ObjectId locationId) {
+	public void setLocation_id(String locationId) {
 		this.locationId = locationId;
 	}
-	public ObjectId getPatientId() {
+	public String getPatientId() {
 		return patientId;
 	}
-	public void setPatient_id(ObjectId patientId) {
+	public void setPatient_id(String patientId) {
 		this.patientId = patientId;
 	}
-	public ObjectId getDoctorId() {
+	public String getDoctorId() {
 		return doctorId;
 	}
-	public void setDoctorId(ObjectId doctorId) {
+	public void setDoctorId(String doctorId) {
 		this.doctorId = doctorId;
 	}
 	
-	public Visit(Date date, String locationName, ObjectId locationId, String patientUsername, ObjectId patientId,
-			String doctorUsername, ObjectId doctorId, EVisitStatus status) {
+	
+	public Visit(Date date, String locationName, String locationId, String patientUsername, String patientId,
+			String doctorUsername, String doctorId, EVisitStatus status) {
 		super();
 		this.date = date;
 		this.locationName = locationName;
@@ -104,20 +106,21 @@ public class Visit {
 				+ ", patientUsername=" + patientUsername + ", patientId=" + patientId + ", doctorUsername="
 				+ doctorUsername + ", doctorId=" + doctorId + ", status=" + status + "]";
 	}
-	
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
 	@Override
 	public boolean equals(Object obj) {
-		if(this == obj) {
+		if (this == obj)
 			return true;
-		}
-		
-		if(obj == null || obj.getClass() != this.getClass()) {
+		if (obj == null)
 			return false;
-		} 
-		
-		Visit otherObj = (Visit) obj;
-		
-		return this.id.equals(otherObj.id);
+		if (getClass() != obj.getClass())
+			return false;
+		Visit other = (Visit) obj;
+		return Objects.equals(id, other.id);
 	}
 
 	

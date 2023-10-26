@@ -1,10 +1,10 @@
 package com.iterate2infinity.PTrack.DTOs;
 
-public class StompMessage {
+public class StompMessage<T> {
 	private String messageType;
 	private String senderUsername;
 	private String recipientUsername;
-	private Object payload;
+	private T payload;
 	
 	public String getMessageType() {
 		return messageType;
@@ -13,10 +13,10 @@ public class StompMessage {
 		this.messageType = messageType;
 	}
 
-	public Object getPayload() {
+	public T getPayload() {
 		return payload;
 	}
-	public void setPayload(Object payload) {
+	public void setPayload(T payload) {
 		this.payload = payload;
 	}
 	public String getSenderUsername() {
@@ -31,12 +31,17 @@ public class StompMessage {
 	public void setRecipientUsername(String recipientUsername) {
 		this.recipientUsername = recipientUsername;
 	}
-	public StompMessage(String messageType, String senderUsername, String recipientUsername, Object payload) {
+	public StompMessage(String messageType, String senderUsername, String recipientUsername, T payload) {
 		super();
 		this.messageType = messageType;
 		this.senderUsername = senderUsername;
 		this.recipientUsername = recipientUsername;
 		this.payload = payload;
+	}
+	@Override
+	public String toString() {
+		return "StompMessage [messageType=" + messageType + ", senderUsername=" + senderUsername
+				+ ", recipientUsername=" + recipientUsername + ", payload=" + payload + "]";
 	}
 
 	

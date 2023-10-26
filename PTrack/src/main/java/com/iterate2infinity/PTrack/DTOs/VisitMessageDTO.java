@@ -2,6 +2,9 @@ package com.iterate2infinity.PTrack.DTOs;
 
 import org.bson.types.ObjectId;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class VisitMessageDTO {
 	private String patientUsername;
 	private String doctorUsername;
@@ -34,8 +37,8 @@ public class VisitMessageDTO {
 	}
 	@Override
 	public String toString() {
-		return "VisitMessage [patientUsername=" + patientUsername + ", doctorUsername=" + doctorUsername
-				+ ", locationName=" + locationName + "]";
+		return "VisitMessageDTO [patientUsername=" + patientUsername + ", doctorUsername=" + doctorUsername
+				+ ", locationName=" + locationName + ", visitID=" + visitID + "]";
 	}
 	public ObjectId getVisitID() {
 		return visitID;
@@ -49,6 +52,8 @@ public class VisitMessageDTO {
 		this.doctorUsername = doctorUsername;
 		this.locationName = locationName;
 		this.visitID = visitID;
+	}
+	public VisitMessageDTO() {
 	}
 	
 	

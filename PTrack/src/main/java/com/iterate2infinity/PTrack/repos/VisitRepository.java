@@ -19,5 +19,5 @@ public interface VisitRepository extends MongoRepository<Visit, ObjectId>{
 	List<Visit> findByPatientId(ObjectId patient_id);
 	List<Visit> findByDoctorId(ObjectId doctor_id);
 
-	Optional<Visit> findById(ObjectId id);
+
 }

@@ -4,8 +4,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.iterate2infinity.PTrack.controllers.CurrentVisitController;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -13,9 +16,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="doctors")
 public class Doctor {
-	
+	private static final Logger logger = LoggerFactory.getLogger(Doctor.class);
+
 	@Id
-	private ObjectId id;
+	private String id;
 	private String username;
 	private String email;
 	private String password;
@@ -28,21 +32,35 @@ public class Doctor {
 	@DBRef
 	private HashSet<Visit> currentVisits = new HashSet<>();
 	
-	public void acceptVisit(Visit updatedVisit) {
-		currentVisits.forEach(v -> {
-			if(v.equals(updatedVisit)) {
-				removeCurrentVisit(v);
-				addCurrentVisit(updatedVisit);
-			}
-		});
-	}
+//	public void acceptVisit(Visit updatedVisit) {
+//		logger.info("CurrentVisits Length (before accepting): "+currentVisits.size());
+//		
+//		currentVisits.forEach(v -> {
+//			if(v.equals(updatedVisit)) {
+//				removeCurrentVisit(v);
+//				addCurrentVisit(updatedVisit);
+//			}
+//		});
+//		
+//		logger.info("CurrentVisits Length (after accepting): "+currentVisits.size());
+//	}
 	
 	public void addCurrentVisit(Visit visit){
+		logger.info("CurrentVisits Length (before adding new visit): "+currentVisits.size());
+
 		currentVisits.add(visit);
+		
+		logger.info("CurrentVisits Length (after adding new visit): "+currentVisits.size());
+
 	}
 	
 	public void removeCurrentVisit(Visit visit) {
+		logger.info("CurrentVisits Length (before removing visit): "+currentVisits.size());
+
 		currentVisits.remove(visit);
+		
+		logger.info("CurrentVisits Length (after removing visit): "+currentVisits.size());
+
 	}
 	
 	public void clearCurrentVisits() {
@@ -64,10 +82,10 @@ public class Doctor {
 		this.isCheckedIn = isCheckedIn;
 	}
 	
-	public ObjectId getId() {
+	public String getId() {
 		return id;
 	}
-	public void setId(ObjectId id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	public String getUsername() {
@@ -124,6 +142,20 @@ public class Doctor {
 	public void setCurrentLocation(Location currentLocation) {
 		this.currentLocation = currentLocation;
 	}
+
+	@Override
+	public String toString() {
+		return "Doctor [id=" + id + ", username=" + username + ", email=" + email + ", password=" + password
+				+ ", isEnabled=" + isEnabled + ", isCheckedIn=" + isCheckedIn + ", currentLocation=" + currentLocation
+				+ ", roles=" + roles + ", currentVisits=" + currentVisits + "]";
+	}
+
+//	@Override
+//	public boolean equals(Object obj) {
+//		if(obj.getClass() != this.getClass()) return false;
+//		Visit otherObj = (Visit) obj;
+//		return otherObj.getId() == this.getId();
+//	}
 	
 	
 	

@@ -82,8 +82,9 @@ public class WebSecurityConfiguration {
 			.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and() // sets the AuthEntryPointJwt as the authentication entry point (catches unauthenticated requests and returns unauthorized response to the front end)
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and() // we are using JWT to manage a user's session so we set our sessions to stateless
 			.authorizeHttpRequests(httpRequests -> httpRequests.requestMatchers("/auth/**").permitAll() // permit all requests to /auth/* end points
-															   //.requestMatchers("/api/locations/**").permitAll()
-															   .requestMatchers("/api/welcome/resetVisits").permitAll()
+//															   .requestMatchers("/api/locations/**").permitAll()
+//															   .requestMatchers("/api/welcome/resetVisits").permitAll()
+//															   .requestMatchers("/api/welcome/user").permitAll()
 															   .requestMatchers("/ws/**").permitAll()
 															   .requestMatchers("/api/admin").hasRole("ADMIN") // requests to /api/admin MUST have role of ADMIN
 															   .requestMatchers("/api/welcome/user").hasRole("USER") // requests to /api/welcome/user MUST have role of USER

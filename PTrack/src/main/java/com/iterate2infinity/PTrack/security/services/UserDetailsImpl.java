@@ -19,7 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class UserDetailsImpl implements UserDetails {
 	
 	private static final long serialVersionUID = 1L;
-	private ObjectId id;
+	private String id;
 	private String username;
 	private String email;
 	@JsonIgnore
@@ -34,7 +34,7 @@ public class UserDetailsImpl implements UserDetails {
 		return authorities;
 	}
 
-	public UserDetailsImpl(ObjectId id, String username, String email, String password, Boolean isEnabled, Collection<? extends GrantedAuthority> authorities) {
+	public UserDetailsImpl(String id, String username, String email, String password, Boolean isEnabled, Collection<? extends GrantedAuthority> authorities) {
 		this.id=id;
 		this.username=username;
 		this.email=email;
@@ -80,7 +80,7 @@ public class UserDetailsImpl implements UserDetails {
 						authorities);
 	}
 	
-	public ObjectId getId() {
+	public String getId() {
 		return id;
 	}
 
