@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VisitRepository extends MongoRepository<Visit, ObjectId>{
+	Optional<Visit> findById(ObjectId id);
 	List<Visit> findAll();
 	List<Visit> findByDate(Date date);
 	List<Visit> findByLocationName(String locationName);
@@ -18,6 +19,5 @@ public interface VisitRepository extends MongoRepository<Visit, ObjectId>{
 	List<Visit> findByLocationId(ObjectId location_id);
 	List<Visit> findByPatientId(ObjectId patient_id);
 	List<Visit> findByDoctorId(ObjectId doctor_id);
-
 
 }

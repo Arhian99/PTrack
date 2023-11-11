@@ -1,11 +1,9 @@
 package com.iterate2infinity.PTrack.DTOs;
 
-import com.iterate2infinity.PTrack.models.User;
-
 //POJO used (as a model) to send data to the frontend (sends JWT along with User object)
-public class JwtResponseDTO {
+public class JwtResponseDTO<T> {
 	private String jwt;
-	private User user;
+	private T user;
 	
 	public String getJwt() {
 		return jwt;
@@ -15,15 +13,15 @@ public class JwtResponseDTO {
 	}
 
 	
-	public JwtResponseDTO(String jwt, User user) {
+	public JwtResponseDTO(String jwt, T user) {
 		super();
 		this.jwt = jwt;
 		this.user = user;
 	}
-	public User getUser() {
+	public T getUser() {
 		return user;
 	}
-	public void setUser(User user) {
+	public void setUser(T user) {
 		this.user = user;
 	}
 	public JwtResponseDTO() {

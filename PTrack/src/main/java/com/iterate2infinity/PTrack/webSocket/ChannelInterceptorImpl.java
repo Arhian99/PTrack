@@ -1,4 +1,4 @@
-package com.iterate2infinity.PTrack;
+package com.iterate2infinity.PTrack.webSocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,12 +54,12 @@ public class ChannelInterceptorImpl implements WebSocketMessageBrokerConfigurer 
 
 					String jwt = parseJwt(accessor);
 
-					if(jwt.equals(null)) {
+					if(jwt.equals(null) || !jwtUtils.validateJwtToken(jwt)) {
 						
 						channelInterceptorLogger.error("Error: JWT is null, unable to authenticate websocket connection.");
 						throw new BadCredentialsException("Error: Unable to authenticate websocket connection.");
 						
-					} else if(jwt!=null && jwtUtils.validateJwtToken(jwt)) {
+					} else {
 						
 						String email = jwtUtils.getEmailFromJwtToken(jwt);
 						UserDetails userDetails = userDetailsService.loadUserByUsername(email);
@@ -71,8 +71,6 @@ public class ChannelInterceptorImpl implements WebSocketMessageBrokerConfigurer 
 						
 						channelInterceptorLogger.info("User authenticated successfully, User: "+ authentication.getName());
 					}
-					
-					
 				}
 				
 				return message;

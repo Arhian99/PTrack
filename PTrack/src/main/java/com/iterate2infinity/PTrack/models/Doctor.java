@@ -149,14 +149,4 @@ public class Doctor {
 				+ ", isEnabled=" + isEnabled + ", isCheckedIn=" + isCheckedIn + ", currentLocation=" + currentLocation
 				+ ", roles=" + roles + ", currentVisits=" + currentVisits + "]";
 	}
-
-//	@Override
-//	public boolean equals(Object obj) {
-//		if(obj.getClass() != this.getClass()) return false;
-//		Visit otherObj = (Visit) obj;
-//		return otherObj.getId() == this.getId();
-//	}
-	
-	
-	
 }

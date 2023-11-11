@@ -4,10 +4,13 @@ import com.iterate2infinity.PTrack.security.JWT.AuthEntryPointJwt;
 import com.iterate2infinity.PTrack.security.JWT.AuthTokenFilter;
 import com.iterate2infinity.PTrack.security.services.UserDetailsServiceImpl;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -19,6 +22,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 // This class provides the configuration for spring security
 @Configuration
@@ -66,25 +72,30 @@ public class WebSecurityConfiguration {
 	}
 	
 	
-	//TODO: CONFIGURE CORS
-	//https://reflectoring.io/spring-cors/
-	// ADD CorsConfigurationSource corsConfigurationSource() bean method (see "Spring Security Applied to Spring Web MVC" section on link above)
-	
+	@Bean
+	CorsConfigurationSource corsConfigurationSource() {
+	  CorsConfiguration configuration = new CorsConfiguration();
+	  configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+	  configuration.setAllowedMethods(Arrays.asList("GET","POST","PATCH", "PUT", "DELETE", "OPTIONS", "HEAD"));
+	  configuration.setAllowCredentials(true);
+	  configuration.setAllowedHeaders(Arrays.asList("*"));
+//	  configuration.setExposedHeaders(Arrays.asList("X-Get-Header"));
+//	  configuration.setMaxAge(3600L);
+	  UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	  source.registerCorsConfiguration("/**", configuration);
+	  return source;
+	}
 	
 	// this method sets the configuration for the security filter chain
-	//TODO: CONFIGURE cors and csrf
+	//TODO: CONFIGURE csrf
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http
-			 // disable cors (for development purposes)
-			
+		http			
 			.csrf(csrf -> csrf.disable()) // disable CSRF (for development purposes)
 			.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and() // sets the AuthEntryPointJwt as the authentication entry point (catches unauthenticated requests and returns unauthorized response to the front end)
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and() // we are using JWT to manage a user's session so we set our sessions to stateless
 			.authorizeHttpRequests(httpRequests -> httpRequests.requestMatchers("/auth/**").permitAll() // permit all requests to /auth/* end points
-//															   .requestMatchers("/api/locations/**").permitAll()
-//															   .requestMatchers("/api/welcome/resetVisits").permitAll()
-//															   .requestMatchers("/api/welcome/user").permitAll()
+															   .requestMatchers("/api/welcome/resetVisits").permitAll()
 															   .requestMatchers("/ws/**").permitAll()
 															   .requestMatchers("/api/admin").hasRole("ADMIN") // requests to /api/admin MUST have role of ADMIN
 															   .requestMatchers("/api/welcome/user").hasRole("USER") // requests to /api/welcome/user MUST have role of USER

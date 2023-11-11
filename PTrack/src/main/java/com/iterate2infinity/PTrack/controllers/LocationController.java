@@ -5,18 +5,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.iterate2infinity.PTrack.DTOs.JwtResponseDTO_Doctor;
+import com.iterate2infinity.PTrack.DTOs.JwtResponseDTO;
+import com.iterate2infinity.PTrack.DTOs.LocationDTO;
+import com.iterate2infinity.PTrack.ExceptionHandling.ResourceNotFoundException;
 import com.iterate2infinity.PTrack.models.Doctor;
 import com.iterate2infinity.PTrack.models.Location;
 import com.iterate2infinity.PTrack.models.User;
-import com.iterate2infinity.PTrack.repos.DoctorRepository;
-import com.iterate2infinity.PTrack.repos.LocationRepository;
-import com.iterate2infinity.PTrack.repos.UserRepository;
-
+import com.iterate2infinity.PTrack.services.DoctorService;
+import com.iterate2infinity.PTrack.services.LocationService;
+import com.iterate2infinity.PTrack.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,22 +24,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/locations")
 public class LocationController {
 	@Autowired
-	LocationRepository locationRepo;
+	LocationService locationService;
 	
 	@Autowired
-	UserRepository userRepo;
+	UserService userService;
 	
 	@Autowired
-	DoctorRepository doctorRepo;
+	DoctorService doctorService;
 	
 	@GetMapping("/all")
 	public ResponseEntity<?> getAllLocations() {
-		List<Location> locations = locationRepo.findAll();
+		List<Location> locations = locationService.getAll();
 
 		return ResponseEntity
 				.ok()
@@ -57,36 +56,22 @@ public class LocationController {
 	
 	
 	
-	/* Request Body
-	 * {
-	 * 		"name": "locationName",
-	 * }
+	/* URL
+	 * /api/locations/byName?name=locationName
 	 */
 	@GetMapping("/byName")
-	public ResponseEntity<?> getLocationByName(@RequestBody HashMap<String, String> request){
-		Location location;
-		if(locationRepo.existsByName(request.get("name"))) {
-			location=locationRepo.findByName(request.get("name")).orElse(null);
-			return ResponseEntity.ok(location);
-		}
-		
-		return ResponseEntity.badRequest().body("Error: No location found matching that name.");
+	public ResponseEntity<?> getLocationByName(@RequestParam("name") String locationName){
+		Location location = locationService.find("byName", locationName).orElseThrow(() -> new ResourceNotFoundException("No location found with name: "+locationName));
+		return ResponseEntity.ok(location);
 	}
 	
-	/* Request Body
-	 * {
-	 * 		"address": "locationAddress"
-	 * }
+	/* URL
+	 * /api/locations/byAddress?address=locationAddress
 	 */
 	@GetMapping("/byAddress")
-	public ResponseEntity<?> getLocationByAddress(@RequestBody HashMap<String, String> request){
-		Location location;
-		if(locationRepo.existsByAddress(request.get("address"))) {
-			location=locationRepo.findByAddress(request.get("address")).orElse(null);
-			return ResponseEntity.ok(location);
-		}
-		
-		return ResponseEntity.badRequest().body("Error: No location found matching that address.");
+	public ResponseEntity<?> getLocationByAddress(@RequestParam("address") String locationAddress){
+		Location location=locationService.find("byAddress", locationAddress).orElseThrow(() -> new ResourceNotFoundException("No location found with the address: "+locationAddress));
+		return ResponseEntity.ok(location);
 	}
 	
 	/* Request Body
@@ -96,54 +81,27 @@ public class LocationController {
 	 * }
 	 */
 	@PostMapping("/new")
-	public ResponseEntity<?> saveLocation(@RequestBody HashMap<String, String> request){
-		if(locationRepo.existsByAddress(request.get("address"))) {
-			return ResponseEntity.badRequest().body("Error: Location already exists with this address.");
-		} else if(locationRepo.existsByName(request.get("name"))) {
-			return ResponseEntity.badRequest().body("Error: Location already exists with that name.");
-		}
-		
-		Location newLocation = new Location(request.get("name"), request.get("address"));
-		locationRepo.save(newLocation);
-		
+	public ResponseEntity<?> saveLocation(@RequestBody LocationDTO location){
+		Location newLocation = locationService.register(location);
 		return ResponseEntity.ok(newLocation);
 	}
 	
 	/* Request Body
 	 * {
 	 * 		"name": "locationName",
-	 * 		"email": "userEmail",
-	 * 		"jwt": "userJWT,
-	 * 		"role": "userRole"
+	 * 		"email": "doctorEmail",
+	 * 		"jwt": "doctorJWT,
+	 * 		"role": "doctorRole"
 	 * }
 	 */
 	@PostMapping("/checkIn")
 	public ResponseEntity<?> checkIn(@RequestBody HashMap<String, String> request){
-		Location location = locationRepo.findByName(request.get("name")).orElse(null);
-		if(location.equals(null)) {
-			return ResponseEntity.badRequest().body("Error: Location not found in database.");
-		}
-			Doctor doctor = doctorRepo.findByEmail(request.get("email")).orElse(null);
-			if(doctor.equals(null)) {
-				return ResponseEntity.badRequest().body("Error: Doctor not found in database.");
-			} else if(doctor.getIsCheckedIn()) {
-				return ResponseEntity.badRequest().body("Error: Doctor is already checked in at a location.");
-			}
-			
-			location.addActiveDoctor(doctor);
-			locationRepo.save(location);
-			
-			doctor.setIsCheckedIn(true);
-			doctor.setCurrentLocation(location);
-			doctorRepo.save(doctor);
-			//TODO: Validate token before returning
-			return ResponseEntity.ok(new JwtResponseDTO_Doctor(request.get("jwt"), doctor));
-
+		JwtResponseDTO<Doctor> jwtResponse = locationService.checkIn(request);
+		return ResponseEntity.ok(jwtResponse);
 	}
 	
 	/* Request Body
 	 * {
-
 	 * 		"email": "userEmail",
 	 * 		"jwt": "userJWT,
 	 * 		"role": "userRole"
@@ -151,26 +109,8 @@ public class LocationController {
 	 */
 	@PostMapping("/checkOut")
 	public ResponseEntity<?> checkOut(@RequestBody HashMap<String, String> request){
-		Doctor doctor;
-
-		doctor = doctorRepo.findByEmail(request.get("email")).orElse(null);
-			
-		if(doctor.equals(null)) {
-			return ResponseEntity.badRequest().body("Error: Doctor not found in database.");
-				
-		} else if(!doctor.getIsCheckedIn() || doctor.getCurrentLocation().equals(null)) {
-			return ResponseEntity.badRequest().body("Error: Doctor is not currently checked in or checked in location not found");
-		}
-			
-		Location currentLocation = doctor.getCurrentLocation();
-		currentLocation.getActiveDoctors().remove(doctor);
-		locationRepo.save(currentLocation);
-			
-		doctor.setIsCheckedIn(false);
-		doctor.setCurrentLocation(null);
-			doctorRepo.save(doctor);
-			
-		return ResponseEntity.ok(new JwtResponseDTO_Doctor(request.get("jwt"), doctor));
+		JwtResponseDTO<Doctor> jwtResponse = locationService.checkOut(request);
+		return ResponseEntity.ok(jwtResponse);
 	}
 	
 	/* Request Body
@@ -181,18 +121,7 @@ public class LocationController {
 	 */
 	@PostMapping("/clearDoctors")
 	public ResponseEntity<?> clearActiveDoctors(@RequestBody HashMap<String, String> request){
-		Location location = locationRepo.findByName(request.get("name")).orElse(null);
-		if(location == null){
-			return ResponseEntity.badRequest().body("Error: Location with specified name not found in database.");
-		}
-		location.getActiveDoctors().forEach(doctor -> {
-			doctor.setIsCheckedIn(false);
-			doctorRepo.save(doctor);
-			});
-		
-		location.clearActiveDoctors();
-		locationRepo.save(location);
-		
+		Location location = locationService.clearActiveDoctors(request.get("name"));
 		return ResponseEntity.ok(location);
 	}
 	
@@ -204,18 +133,7 @@ public class LocationController {
 	 */
 	@PostMapping("/clearPatients")
 	public ResponseEntity<?> clearActivePatients(@RequestBody HashMap<String, String> request){
-		Location location = locationRepo.findByName(request.get("name")).orElse(null);
-		if(location==null) {
-			return ResponseEntity.badRequest().body("Error: Location with specified name not found in database.");
-		}  
-		location.getActivePatients().forEach(patient -> {
-			patient.setCurrentLocation(null);
-			userRepo.save(patient);
-			//TODO: Update Visit object status to finalized (and save in db) or to rejected (and remove from db)
-		});
-		location.clearActivePatients();
-		locationRepo.save(location);
-		
+		Location location = locationService.clearActivePatients(request.get("name"));
 		return ResponseEntity.ok(location);
 	}
 	
@@ -227,43 +145,17 @@ public class LocationController {
 	 */
 	@PostMapping("/clearAll")
 	public ResponseEntity<?> clearAll(@RequestBody HashMap<String, String> request){
-		Location location = locationRepo.findByName(request.get("name")).orElse(null);
-		if(location==null) {
-			return ResponseEntity.badRequest().body("Error: Location with specified name not found in database.");
-		}
-		
-		location.getActiveDoctors().forEach(doctor -> {
-			doctor.setIsCheckedIn(false);
-			doctorRepo.save(doctor);
-		});
-		
-		location.clearActiveDoctors();
-
-		location.getActivePatients().forEach(patient -> {
-			patient.setCurrentLocation(null);
-			userRepo.save(patient);
-			//TODO: Update Visit object status to finalized (and save in db) or to rejected (and remove from db)
-		});
-		
-		location.clearActivePatients();
-		locationRepo.save(location);
-		
+		Location location = locationService.clearAll(request.get("name"));		
 		return ResponseEntity.ok(location);
 	}
 	
 	/* Request Params
-	 * URL: /api/locations/activePatients?location_name=XXXXXX
+	 * URL: /api/locations/activeDoctors?location_name=XXXXXX
 	 *
 	 */
 	@GetMapping("/activeDoctors")
 	public ResponseEntity<?> getActiveDoctors(@RequestParam("location_name") String locationName){
-		Location location = locationRepo.findByName(locationName).orElse(null);
-		if(location==null) {
-			return ResponseEntity.badRequest().body("Error: Location with specified name not found in database.");
-		}
-		
-		HashSet<Doctor> activeDoctors = location.getActiveDoctors();
-		
+		HashSet<Doctor> activeDoctors = locationService.getActiveDoctors(locationName);
 		return ResponseEntity.ok(activeDoctors);
 	}
 	
@@ -272,14 +164,8 @@ public class LocationController {
 	 *
 	 */
 	@GetMapping("/activePatients")
-	public ResponseEntity<?> getActivePatients(@RequestParam("location_name") String locationName){
-		Location location = locationRepo.findByName(locationName).orElse(null);
-		if(location==null) {
-			return ResponseEntity.badRequest().body("Error: Location with specified name not found in database.");
-		}
-		
-		HashSet<User> activePatients = location.getActivePatients();
-		
+	public ResponseEntity<?> getActivePatients(@RequestParam("location_name") String locationName){		
+		HashSet<User> activePatients = locationService.getActivePatients(locationName);
 		return ResponseEntity.ok(activePatients);
 	}
 }
